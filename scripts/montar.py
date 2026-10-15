@@ -105,7 +105,7 @@ def main():
         else:
             camara[m["cod_ibge"]][m["ciclo"]].append(["", m["vereador"], "", "", None])
     for b in ler(PREF, "dados", "bens_resumo.csv"):
-        bens[b["pessoa_id"]].append([int(b["ano"]), b["cargo"], b["cod_ibge"], num(b["patrimonio_declarado"]), int(b["n_bens"])])
+        bens[b["pessoa_id"]].append([int(b["ano"]), b["cargo"], b["cod_ibge"], num(b["patrimonio_sem_implausiveis"]), int(b["n_bens"]), num(b["patrimonio_declarado"]), int(b["n_implausiveis"])])
 
     tcu = defaultdict(list)
     for r in ler(PREF, "dados", "indicadores", "tcu_inabilitados.csv"):
@@ -362,7 +362,27 @@ def estudos_calc(pessoas, cand, prefeitos, camara, fin, ideb, ibge, emendas, ben
                                  "metodo": "Pagamentos a prefeitura, fundo ou órgão municipal; população do Censo 2022.",
                                  "colunas": ["município", "cod", "total pago", "população 2022", "R$ por habitante"],
                                  "linhas": sorted(linhas, key=lambda x: -x[4]), "fonte": "CGU (Portal da Transparência) e IBGE"}
-    # 7. participação de saúde e educação no gasto (média do mandato)
+    # 7. patrimônio declarado de quem estava no mandato e voltou a concorrer
+    eleitos = {(pid, c[0]) for pid, cs in cand.items() for c in cs if c[1] in ("prefeito", "vereador") and c[5] in ELEITO}
+    linhas = []
+    for pid, bs in bens.items():
+        por_ano = {}
+        for b in bs:  # mesmo ano com duas candidaturas: fica o maior total
+            por_ano[b[0]] = max(por_ano.get(b[0], (0, "", ""))[:1] + (b[1], b[2]), (b[3] or 0, b[1], b[2]))
+        anos = sorted(por_ano)
+        for a0, a1 in zip(anos, anos[1:]):
+            if a1 - a0 == 4 and (pid, a0) in eleitos and por_ano[a0][0] > 0:
+                v0, v1 = por_ano[a0][0], por_ano[a1][0]
+                cargo0 = next(c[1] for c in cand[pid] if c[0] == a0 and c[5] in ELEITO)
+                linhas.append([pid, pessoas[pid]["nome"] if pid in pessoas else pid, cargo0, por_ano[a0][2], a0, round(v0, 2), a1, round(v1, 2),
+                               round(v1 - v0, 2)])
+    est["patrimonio"] = {"titulo": "Patrimônio declarado ao TSE: quem estava no mandato e voltou a concorrer",
+                         "metodo": "Total declarado na eleição em que foi eleito(a) prefeito(a) ou vereador(a) e na eleição seguinte (4 anos depois). "
+                                   "Valores nominais, sem correção, informados pelo próprio candidato, em geral pelo valor de compra. "
+                                   "Herança, venda, atualização de valores ou erro de declaração explicam muitas variações. Não é indício de irregularidade por si.",
+                         "colunas": ["pessoa_id", "nome", "cargo", "cod", "eleição", "declarado", "eleição", "declarado", "variação"],
+                         "linhas": sorted(linhas, key=lambda x: -x[8])[:40], "n_total": len(linhas), "fonte": "TSE (bem_candidato)"}
+    # 8. participação de saúde e educação no gasto (média do mandato)
     est["avisos"] = ["Estudos descrevem os dados oficiais; não são juízo sobre pessoas. Confira a fonte antes de citar.",
                      "Patrimônio declarado ao TSE é o informado pelo candidato, em geral pelo valor de compra."]
     return est
