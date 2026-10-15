@@ -201,6 +201,9 @@ def main():
     ideb = defaultdict(list)
     for r in ler(PREF, "dados", "indicadores", "ideb.csv"):
         ideb[r["cod_ibge"]].append([r["etapa"], r["rede"], int(r["ano"]), num(r["ideb"]), num(r["meta"])])
+    siope = defaultdict(list)
+    for r in ler(PREF, "dados", "indicadores", "siope.csv"):
+        siope[r["cod_ibge"]].append([int(r["ano"]), r["indicador"], num(r["valor"]), num(r["minimo"]), r["cumpriu"], r["observacao"]])
     emendas = defaultdict(lambda: defaultdict(float))
     for r in ler(PREF, "dados", "indicadores", "emendas_recebidas.csv"):
         emendas[r["cod_ibge"]][(int(r["ano"]), r["autor"], r["tipo_emenda"])] += float(r["valor_recebido"])
@@ -219,7 +222,7 @@ def main():
             "cod": cod, "nome": nome, "prefeitos": pref,
             "camara": {k: sorted(v, key=lambda x: -(x[4] or 0)) for k, v in sorted(camara[cod].items())},
             "eleicoes": {k: sorted(v, key=lambda x: (x[9] or "", x[7], -(x[4] or 0))) for k, v in sorted(eleicoes[cod].items())},
-            "ibge": sorted(ibge[cod]), "fin_campos": campos_fin, "fin": fin[cod], "ideb": ideb[cod],
+            "ibge": sorted(ibge[cod]), "fin_campos": campos_fin, "fin": fin[cod], "ideb": ideb[cod], "siope": sorted(siope[cod]),
             "emendas": sorted([[a, au, t, round(v, 2)] for (a, au, t), v in emendas[cod].items()], key=lambda x: (x[0], -x[3])),
         })
 

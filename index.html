@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Políticos do Amazonas</title>
 <meta name="description" content="Perfis, trajetórias, patrimônio declarado e dados das gestões de prefeitos, vereadores, deputados federais e senadores do Amazonas, a partir de fontes oficiais.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23002D72'/%3E%3Ctext x='16' y='22' font-size='14' text-anchor='middle' fill='%23F5A623' font-family='sans-serif' font-weight='700'%3EAM%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -79,7 +80,8 @@ window._VERSION_LOG = ["v1.0 2026-10-15 [Proton]: primeira versão — busca, fi
 window._VICIOS_CONHECIDOS = ["Chart.js: destruir o gráfico antes de recriar (graficos[] + destroy())"];
 window._TENTATIVAS_FALHAS = [];
 
-const CARGO = {prefeito:"Prefeito(a)", "vice-prefeito":"Vice-prefeito(a)", vereador:"Vereador(a)", deputado_federal:"Deputado(a) federal", senador:"Senador(a)"};
+const CARGO = {prefeito:"Prefeito(a)", "vice-prefeito":"Vice-prefeito(a)", vereador:"Vereador(a)", deputado_federal:"Deputado(a) federal", senador:"Senador(a)", suplente_senador:"Suplente de senador(a)",
+  deputado_estadual:"Deputado(a) estadual", governador:"Governador(a)", "vice-governador":"Vice-governador(a)"};
 const FLAG = {P:"Prefeito(a)", V:"Vice-prefeito(a)", E:"Vereador(a)", D:"Deputado(a) federal", S:"Senador(a)", c:"Candidato(a)"};
 const ELEITO = new Set(["ELEITO","ELEITO POR QP","ELEITO POR MÉDIA","MÉDIA"]);
 let IDX = null, MUN = {}, SHARD = {}, graficos = [];
@@ -207,6 +209,10 @@ async function telaMunicipio(cod){
       <h3>Saúde e educação na despesa total (%)</h3><div class="graf"><canvas id="gSE"></canvas></div>
       <p class="sub">Participação na despesa empenhada. Não é o cálculo dos mínimos constitucionais (15% e 25%), que usa outra base.</p>
       ${fin.some(f => f.dtp_pct_rcl != null) ? `<h3>Despesa com pessoal do Executivo (% da receita corrente líquida)</h3><div class="graf"><canvas id="gPes"></canvas></div><p class="sub">Limite da LRF: 54% (art. 20, III, b). Fonte: RGF Anexo 1, SICONFI.</p>` : ""}</section>` : ""}
+    ${(m.siope||[]).length ? (() => { const anosS = [...new Set(m.siope.map(x => x[0]))].sort().reverse(), v = (a,k) => m.siope.find(x => x[0]===a && x[1]===k);
+      const cel = x => !x ? "<td class='n'>—</td>" : `<td class="n ${x[4]==="não"?"":"eleito"}" title="${esc(x[5]||"")}">${nf(x[2],1)}%${x[4]==="não"?` <span class="selo" style="background:var(--mau)">abaixo de ${nf(x[3],0)}%</span>`:""}${x[5]?" *":""}</td>`;
+      return `<section class="card"><h2>Mínimos legais da educação (declarado ao SIOPE)</h2><div class="rolar"><table class="tab"><thead><tr><th>Ano</th><th class="n">MDE (mín. 25%)</th><th class="n">FUNDEB na remuneração (mín. 60%/70%)</th><th class="n">Educação no gasto total</th></tr></thead><tbody>${anosS.map(a => `<tr><td>${a}</td>${cel(v(a,"mde_pct"))}${cel(v(a,"fundeb_remuneracao_pct"))}<td class="n">${v(a,"educacao_pct_despesa_total") ? nf(v(a,"educacao_pct_despesa_total")[2],1)+"%" : "—"}</td></tr>`).join("")}</tbody></table></div>
+      <p class="sub">MDE: CF art. 212. FUNDEB: 60% até 2020 (Lei 11.494/2007), 70% desde 2021 (Lei 14.113/2020). * 2020–2021: a EC 119/2022 afastou a responsabilização por não aplicar o mínimo na pandemia, com complementação até 2023. Valores declarados pelo município; a apuração oficial é do TCE-AM. Fonte: SIOPE/FNDE.</p></section>`; })() : ""}
     ${m.ideb.length ? `<section class="card"><h2>IDEB da rede municipal</h2><div class="graf"><canvas id="gIdeb"></canvas></div><p class="sub">Rede municipal, a que responde ao prefeito. Fonte: INEP (divulgação 2023).</p></section>` : ""}
     ${m.emendas.length ? `<section class="card"><h2>Emendas parlamentares federais pagas à prefeitura</h2><div class="graf"><canvas id="gEm"></canvas></div>
       <h3>Quem mais mandou (2019 em diante)</h3><div class="rolar"><table class="tab"><thead><tr><th>Autor</th><th class="n">Pago</th></tr></thead><tbody>${topAutor.map(([a,v]) => `<tr><td>${esc(a)}</td><td class="n">${brl(v)}</td></tr>`).join("")}</tbody></table></div>
