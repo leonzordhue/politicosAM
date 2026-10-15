@@ -107,6 +107,10 @@ def main():
     for b in ler(PREF, "dados", "bens_resumo.csv"):
         bens[b["pessoa_id"]].append([int(b["ano"]), b["cargo"], b["cod_ibge"], num(b["patrimonio_declarado"]), int(b["n_bens"])])
 
+    tcu = defaultdict(list)
+    for r in ler(PREF, "dados", "indicadores", "tcu_inabilitados.csv"):
+        tcu[r["pessoa_id"]].append([r["processo"], r["acordao"], r["data_acordao"], r["transito_julgado"], r["inabilitado_ate"], r["fonte"]])
+
     # ------------------------------------------------------------ parlamentares (Claude)
     bancada = {}
     for repo, (casa, cargo, pasta) in PARL.items():
@@ -176,6 +180,8 @@ def main():
         cs = sorted(cand.get(pid, []), key=lambda c: (c[0], c[10] or "", c[8]))
         ms = sorted(mand.get(pid, []), key=lambda m: m[2] or "")
         ficha = {**p, "cand": cs, "mand": ms, "bens": sorted(bens.get(pid, []))}
+        if pid in tcu:
+            ficha["tcu"] = tcu[pid]
         if pid in parl:
             ficha["parl"] = parl[pid]
         shards[pid[:2]][pid] = ficha
@@ -228,6 +234,27 @@ def main():
 
     # ------------------------------------------------------------ estudos
     estudos = estudos_calc(pessoas, cand, prefeitos, camara, fin, ideb, ibge, emendas, bens, muns)
+    # painel comparativo: o último valor disponível de cada indicador, com o ano junto
+    def ultimo(serie):
+        serie = [x for x in serie if x[1] is not None]
+        return max(serie) if serie else (None, None)
+    painel = []
+    for cod, nome in muns.items():
+        pop = ultimo([(r[0], r[1]) for r in ibge[cod] if r[0] == 2022])
+        pibpc = ultimo([(r[0], r[3]) for r in ibge[cod]])
+        ai = ultimo([(r[2], r[3]) for r in ideb[cod] if r[1] == "Municipal" and r[0].startswith("anos iniciais")])
+        af = ultimo([(r[2], r[3]) for r in ideb[cod] if r[1] == "Municipal" and r[0].startswith("anos finais")])
+        mde = ultimo([(r[0], r[2]) for r in siope[cod] if r[1] == "mde_pct" and r[2]])
+        i_ano, i_dtp = (campos_fin.index("ano"), campos_fin.index("dtp_pct_rcl")) if campos_fin else (0, 0)
+        dtp = ultimo([(int(r[i_ano]), r[i_dtp]) for r in fin[cod]]) if campos_fin else (None, None)
+        em = sum(v for (a, _, _), v in emendas[cod].items() if a >= 2019)
+        painel.append([nome, cod, pop[1], pibpc[1], pibpc[0], ai[1], ai[0], af[1], af[0], mde[1], mde[0], dtp[1], dtp[0],
+                       round(em / pop[1], 2) if pop[1] else None])
+    estudos["painel"] = {"titulo": "Painel comparativo dos 62 municípios (último dado disponível)",
+                         "colunas": ["município", "cod", "população 2022", "PIB por habitante", "ano", "IDEB anos iniciais (rede municipal)", "ano",
+                                     "IDEB anos finais (rede municipal)", "ano", "MDE (% impostos)", "ano", "pessoal/RCL (%)", "ano",
+                                     "emendas por habitante desde 2019"],
+                         "linhas": sorted(painel), "fonte": "IBGE, INEP, SIOPE/FNDE, SICONFI, CGU"}
     gravar_json(os.path.join(DATA, "estudos.json"), estudos)
     gravar_json(os.path.join(DATA, "indice.json"), {
         "gerado": datetime.now().isoformat(timespec="minutes"), "pessoas": indice,

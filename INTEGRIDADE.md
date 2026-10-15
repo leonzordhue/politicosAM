@@ -1,4 +1,4 @@
-# Integridade da junção (gerado em 15/10/2026 17:19)
+# Integridade da junção (gerado em 15/10/2026 17:23)
 
 - Pessoas: 35542; parlamentares federais: 50; municípios: 62
 - Checagens: **7 de 7 passaram**
