@@ -148,7 +148,8 @@ def main():
                                     sapl_pid.get((r["cod_ibge"], r["sapl_parlamentar_id"]), "")])
     cam_fin = defaultdict(list)
     for r in ler(PREF, "dados", "indicadores", "camaras_financas.csv"):
-        cam_fin[r["cod_ibge"]].append([int(r["ano"]), num(r["camara_empenhado"]), num(r["camara_pessoal"]), num(r["camara_pessoal_pct_rcl"])])
+        cam_fin[r["cod_ibge"]].append([int(r["ano"]), num(r["legislativa_empenhado"]) or num(r["camara_empenhado"]),  # função Legislativa; MSC onde ela falta
+                                    num(r["camara_pessoal"]), num(r["camara_pessoal_pct_rcl"])])
     sapl_casas = {c for c, _ in sapl_pid}
     tcedec = defaultdict(list)  # decisões do TCE-AM desde 2016 (jurisprudência) em que prefeito/vice é parte
     for r in ler(PREF, "dados", "indicadores", "tceam_decisoes.csv"):
