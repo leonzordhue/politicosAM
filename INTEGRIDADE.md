@@ -1,4 +1,4 @@
-# Integridade da junção (gerado em 16/10/2026 14:10)
+# Integridade da junção (gerado em 16/10/2026 18:44)
 
 - Pessoas: 35542; parlamentares federais: 50; municípios: 62
 - Checagens: **7 de 7 passaram**
@@ -9,7 +9,7 @@
 - ✅ toda candidatura, mandato e declaração de bens aponta para pessoa conhecida (0 órfãos)
 - ✅ 33 parlamentares federais também disputaram prefeitura ou câmara municipal no AM (ligados pelo pessoa_id)
 - ✅ 3696 fotos copiadas e presentes
-- ✅ dados do site: 28.2 MB em 320 arquivos
+- ✅ dados do site: 28.7 MB em 320 arquivos
 
 ## Arquivos esperados e ainda não publicados pelos repositórios
 
@@ -17,4 +17,4 @@
 
 ## Alertas para verificação humana
 
-- ⚠️ Joao Thome Vercosa Mestrinho De Medeiros Raposo (6ceee451e2): nascimento 1951-08-14 no TSE municipal ≠ 1951-08-15 em senadorAM
+- ⚠️ resolvido: Joao Thome Vercosa Mestrinho De Medeiros Raposo (6ceee451e2): nascimento 1951-08-15 (senadorAM: Casa + TSE eleição geral) prevalece sobre 1951-08-14 (TSE municipal, provável erro de digitação)

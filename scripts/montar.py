@@ -154,8 +154,11 @@ def main():
     for r in ler(PREF, "dados", "indicadores", "tceam_decisoes.csv"):
         tcedec[r["pessoa_id"]].append([r["data_arquivo"], r["orgao"], r["natureza"], r["processo"], r["decisorio"], r["termos"], r["arquivo"], r["objeto"]])
     tce = defaultdict(list)  # contas julgadas irregulares pelo TCE-AM (ligadas por CPF + nome)
-    for r in ler(PREF, "dados", "indicadores", "tceam_contas_irregulares.csv"):
-        tce[r["pessoa_id"]].append([r["data_sessao"], r["orgao"], r["natureza"], r["processo"], r["exercicio"], r["acordao"], r["orgao_julgador"], r["fonte"]])
+    # relações de 2022+ (portal do TCE-AM) e relações antigas, 2006-2021, recuperadas do Internet Archive (script 23)
+    for arq in ("tceam_contas_irregulares.csv", "tceam_listas_antigas.csv"):
+        for r in ler(PREF, "dados", "indicadores", arq):
+            tce[r["pessoa_id"]].append([r["data_sessao"], r["orgao"], r["natureza"], r["processo"], r["exercicio"], r["acordao"],
+                                        r["orgao_julgador"], r["fonte"], r["ligacao"]])
     jul = defaultdict(list)  # fundamentos de julgamento da candidatura na Justiça Eleitoral (TSE, 2016 em diante)
     for r in ler(PREF, "dados", "julgamentos.csv"):
         jul[r["pessoa_id"]].append([int(r["ano"]), r["cargo"], r["cod_ibge"], r["resultado"], r["motivo"], r["categoria"], r["fonte"]])
@@ -179,7 +182,11 @@ def main():
                 pessoas[pid] = {"id": pid, "nome": p["nome"], "nasc": p["nascimento"], "genero": p["genero"],
                                 "natural": "/".join(x for x in (p["municipio_nascimento"], p["uf_nascimento"]) if x)}
             elif pessoas[pid]["nasc"] and p["nascimento"] and pessoas[pid]["nasc"] != p["nascimento"]:
-                alertas.append(f"{p['nome']} ({pid}): nascimento {pessoas[pid]['nasc']} no TSE municipal ≠ {p['nascimento']} em {repo}")
+                # o repositório federal só liga quando nome + nascimento batem com o TSE das eleições gerais, e a data confere com a
+                # ficha oficial da Casa: duas fontes contra um registro do TSE municipal; prevalece a do repositório federal
+                alertas.append(f"resolvido: {p['nome']} ({pid}): nascimento {p['nascimento']} ({repo}: Casa + TSE eleição geral) prevalece "
+                               f"sobre {pessoas[pid]['nasc']} (TSE municipal, provável erro de digitação)")
+                pessoas[pid]["nasc"] = p["nascimento"]
             if slug(pessoas[pid]["nome"]) == slug(p["nome"]):
                 pessoas[pid]["nome"] = p["nome"]  # mesmo nome; o da Casa costuma vir com acentos (o TSE antigo não tem)
             pessoas[pid]["urna_parl"] = p["nome_urna_mais_recente"]
@@ -289,6 +296,28 @@ def main():
     for r in ler(PREF, "dados", "prefeito_declarado.csv"):
         if r["situacao"].startswith(("outra pessoa", "sem mandato", "provável")):
             declarado[r["cod_ibge"]].append([int(r["ano"]), r["periodo"], r["nome_declarado"], r["pessoa_id"], r["titular_tse"], r["situacao"], r["data_declaracao"]])
+    # quem assinou atos como prefeito(a) sem ser o titular do TSE, no Diário Oficial (AAM/SIGPub e DOM Manaus; scripts 24 e 25)
+    atos = defaultdict(lambda: {"n": 0, "ini": "9999", "fim": "", "fonte": ""})
+    for arq in ("prefeito_atos_aam.csv", "prefeito_atos_manaus.csv"):
+        for r in ler(PREF, "dados", arq):
+            if r["papel"] == "titular":
+                continue
+            g = atos[(r["cod_ibge"], r["pessoa_id"] or r["nome_no_ato"], r["papel"])]  # grafias diferentes da mesma pessoa numa linha
+            g["n"] += 1
+            if r["condicao"]:
+                g["cond"] = "em exercício" if "exerc" in r["condicao"] else r["condicao"]
+            g.setdefault("grafias", Counter())[r["nome_no_ato"] or ""] += 1  # a grafia mais frequente evita "AMÃ ... SEC" colado do cabeçalho
+            g["pid"] = r["pessoa_id"]
+            if r["data"] < g["ini"]:
+                g["ini"], g["fonte"] = r["data"], re.search(r"https?://[^\s),]+", r["fonte"]).group(0)
+            g["fim"] = max(g["fim"], r["data"])
+    atos_mun = defaultdict(list)
+    for (cod, _, papel), g in atos.items():
+        cond = g.get("cond", "")
+        if g["n"] >= 2 or cond or papel.startswith(("vice (presumido", "presidente")):  # ato isolado sem condição tende a ser ruído
+            atos_mun[cod].append([g["grafias"].most_common(1)[0][0], g["pid"], papel, cond, g["n"], g["ini"], g["fim"], g["fonte"]])
+    for v in atos_mun.values():
+        v.sort(key=lambda x: x[5])
     emendas = defaultdict(lambda: defaultdict(float))
     for r in ler(PREF, "dados", "indicadores", "emendas_recebidas.csv"):
         emendas[r["cod_ibge"]][(int(r["ano"]), r["autor"], r["tipo_emenda"])] += float(r["valor_recebido"])
@@ -309,7 +338,7 @@ def main():
             "cod": cod, "nome": nome, "prefeitos": pref,
             "camara": {k: sorted(v, key=lambda x: -(x[4] or 0)) for k, v in sorted(camara[cod].items())},
             "eleicoes": {k: sorted(v, key=lambda x: (x[9] or "", x[7], -(x[4] or 0))) for k, v in sorted(eleicoes[cod].items())},
-            "ibge": sorted(ibge[cod]), "fin_campos": campos_fin, "fin": fin[cod], "ideb": ideb[cod], "siope": sorted(siope[cod]), "siops": sorted(siops[cod]), "idhm": sorted(idhm[cod]), "declarado": declarado[cod], "gest": sorted(gest_cod[cod]),
+            "ibge": sorted(ibge[cod]), "fin_campos": campos_fin, "fin": fin[cod], "ideb": ideb[cod], "siope": sorted(siope[cod]), "siops": sorted(siops[cod]), "idhm": sorted(idhm[cod]), "declarado": declarado[cod], "atos": atos_mun[cod], "gest": sorted(gest_cod[cod]),
             "normas": {"n": len(normas[cod]), "lista": sorted(normas[cod], reverse=True)[:150]} if normas[cod] else None,
             "mesa": sorted(mesa[cod], reverse=True), "cam_fin": sorted(cam_fin[cod]), "sapl": cod in sapl_casas,
             "emendas": sorted([[a, au, t, round(v, 2)] for (a, au, t), v in emendas[cod].items()], key=lambda x: (x[0], -x[3])),
