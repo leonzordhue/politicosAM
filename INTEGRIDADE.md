@@ -1,4 +1,4 @@
-# Integridade da junção (gerado em 15/10/2026 19:15)
+# Integridade da junção (gerado em 16/10/2026 09:29)
 
 - Pessoas: 35542; parlamentares federais: 50; municípios: 62
 - Checagens: **7 de 7 passaram**
@@ -8,7 +8,7 @@
 - ✅ senadorAM: 14 pessoas em dados/pessoas.csv
 - ✅ toda candidatura, mandato e declaração de bens aponta para pessoa conhecida (0 órfãos)
 - ✅ 33 parlamentares federais também disputaram prefeitura ou câmara municipal no AM (ligados pelo pessoa_id)
-- ✅ 3695 fotos copiadas e presentes
+- ✅ 3696 fotos copiadas e presentes
 - ✅ dados do site: 17.1 MB em 320 arquivos
 
 ## Arquivos esperados e ainda não publicados pelos repositórios
