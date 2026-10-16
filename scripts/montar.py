@@ -110,6 +110,55 @@ def main():
     tcu = defaultdict(list)
     for r in ler(PREF, "dados", "indicadores", "tcu_inabilitados.csv"):
         tcu[r["pessoa_id"]].append([r["processo"], r["acordao"], r["data_acordao"], r["transito_julgado"], r["inabilitado_ate"], r["fonte"]])
+    gest = defaultdict(list)  # gasto por gestão (soma da série anual, R$ corrigidos pelo IPCA)
+    gest_cod = defaultdict(list)
+    for r in ler(PREF, "dados", "indicadores", "gestoes.csv"):
+        g = [int(r["ciclo"]), r["cod_ibge"], r["inicio"], r["fim"], r["anos_atribuidos"], r["anos_sem_dado"], r["em_curso"],
+             num(r["receita_orcamentaria_real"]), num(r["despesa_empenhada_real"]), num(r["desp_saude_real"]), num(r["desp_educacao_real"]),
+             num(r["desp_administracao_real"]), num(r["desp_urbanismo_real"]), num(r["despesa_real_por_habitante_ano"]), num(r["pessoal_pct_rcl_medio"]),
+             r["pessoa_id"], r["prefeito"], int(r["ipca_referencia"])]
+        gest[r["pessoa_id"]].append(g)
+        gest_cod[r["cod_ibge"]].append(g)
+    # ------------------------------------------------------------ Câmaras no SAPL (projetos, normas, votos)
+    sapl_pid = {(r["cod_ibge"], r["sapl_id"]): r["pessoa_id"] for r in ler(PREF, "dados", "camaras", "parlamentares.csv")}
+    sapl_nome = {(r["cod_ibge"], r["sapl_id"]): r["nome_parlamentar"] or r["nome_completo"] for r in ler(PREF, "dados", "camaras", "parlamentares.csv")}
+    materia = {(r["cod_ibge"], r["sapl_id"]): r for r in ler(PREF, "dados", "camaras", "materias.csv")}
+    rotulo = lambda r: f"{r['sigla'] or r['tipo']} {r['numero']}/{r['ano']}"  # noqa: E731
+    autoria = defaultdict(list)
+    for r in ler(PREF, "dados", "camaras", "autorias.csv"):
+        pid = sapl_pid.get((r["cod_ibge"], r["sapl_parlamentar_id"]))
+        mt = materia.get((r["cod_ibge"], r["materia_id"]))
+        if pid and mt:
+            autoria[pid].append([mt["data_apresentacao"], mt["tipo"], rotulo(mt), mt["ementa"][:220], mt["url"], 1 if r["primeiro_autor"] == "True" else 0])
+    votacao = {(r["cod_ibge"], r["votacao_id"]): r for r in ler(PREF, "dados", "camaras", "votacoes.csv")}
+    votos = defaultdict(list)
+    for r in ler(PREF, "dados", "camaras", "votos.csv"):
+        pid = sapl_pid.get((r["cod_ibge"], r["sapl_parlamentar_id"]))
+        vt = votacao.get((r["cod_ibge"], r["votacao_id"]))
+        mt = materia.get((r["cod_ibge"], vt["materia_id"])) if vt else None
+        if pid and vt:
+            votos[pid].append([r["data"] or vt["data"], rotulo(mt) if mt else "", (mt["ementa"][:160] if mt else ""), r["voto"], vt["resultado"],
+                               mt["url"] if mt else "", vt["sim"], vt["nao"]])
+    normas = defaultdict(list)
+    for r in ler(PREF, "dados", "camaras", "normas.csv"):
+        normas[r["cod_ibge"]].append([r["data"], r["tipo"], r["numero"], r["ano"], r["ementa"][:220], r["url"]])
+    mesa = defaultdict(list)
+    for r in ler(PREF, "dados", "camaras", "mesa.csv"):
+        mesa[r["cod_ibge"]].append([r["inicio"], r["fim"], r["cargo"], sapl_nome.get((r["cod_ibge"], r["sapl_parlamentar_id"]), ""),
+                                    sapl_pid.get((r["cod_ibge"], r["sapl_parlamentar_id"]), "")])
+    cam_fin = defaultdict(list)
+    for r in ler(PREF, "dados", "indicadores", "camaras_financas.csv"):
+        cam_fin[r["cod_ibge"]].append([int(r["ano"]), num(r["camara_empenhado"]), num(r["camara_pessoal"]), num(r["camara_pessoal_pct_rcl"])])
+    sapl_casas = {c for c, _ in sapl_pid}
+    tcedec = defaultdict(list)  # decisões do TCE-AM desde 2016 (jurisprudência) em que prefeito/vice é parte
+    for r in ler(PREF, "dados", "indicadores", "tceam_decisoes.csv"):
+        tcedec[r["pessoa_id"]].append([r["data_arquivo"], r["orgao"], r["natureza"], r["processo"], r["decisorio"], r["termos"], r["arquivo"], r["objeto"]])
+    tce = defaultdict(list)  # contas julgadas irregulares pelo TCE-AM (ligadas por CPF + nome)
+    for r in ler(PREF, "dados", "indicadores", "tceam_contas_irregulares.csv"):
+        tce[r["pessoa_id"]].append([r["data_sessao"], r["orgao"], r["natureza"], r["processo"], r["exercicio"], r["acordao"], r["orgao_julgador"], r["fonte"]])
+    jul = defaultdict(list)  # fundamentos de julgamento da candidatura na Justiça Eleitoral (TSE, 2016 em diante)
+    for r in ler(PREF, "dados", "julgamentos.csv"):
+        jul[r["pessoa_id"]].append([int(r["ano"]), r["cargo"], r["cod_ibge"], r["resultado"], r["motivo"], r["categoria"], r["fonte"]])
 
     # ------------------------------------------------------------ parlamentares (Claude)
     bancada = {}
@@ -182,6 +231,26 @@ def main():
         ficha = {**p, "cand": cs, "mand": ms, "bens": sorted(bens.get(pid, []))}
         if pid in tcu:
             ficha["tcu"] = tcu[pid]
+        if pid in tce:
+            ficha["tce"] = sorted(tce[pid], reverse=True)
+        if pid in gest:
+            ficha["gest"] = sorted(gest[pid])
+        if pid in autoria:
+            au = sorted(autoria[pid], reverse=True)
+            tipos = defaultdict(int)
+            for a in au:
+                tipos[a[1]] += 1
+            ficha["autoria"] = {"n": len(au), "tipos": sorted(tipos.items(), key=lambda z: -z[1]), "lista": au[:150]}
+        if pid in votos:
+            vs = sorted(votos[pid], reverse=True)
+            cont = defaultdict(int)
+            for v in vs:
+                cont[v[3]] += 1
+            ficha["votos"] = {"n": len(vs), "cont": sorted(cont.items(), key=lambda z: -z[1]), "lista": vs[:200]}
+        if pid in tcedec:
+            ficha["tcedec"] = sorted(tcedec[pid], reverse=True)
+        if pid in jul:
+            ficha["jul"] = sorted(jul[pid])
         if pid in parl:
             ficha["parl"] = parl[pid]
         shards[pid[:2]][pid] = ficha
@@ -210,6 +279,16 @@ def main():
     siope = defaultdict(list)
     for r in ler(PREF, "dados", "indicadores", "siope.csv"):
         siope[r["cod_ibge"]].append([int(r["ano"]), r["indicador"], num(r["valor"]), num(r["minimo"]), r["cumpriu"], r["observacao"]])
+    siops = defaultdict(list)
+    for r in ler(PREF, "dados", "indicadores", "siops.csv"):
+        siops[r["cod_ibge"]].append([int(r["ano"]), r["indicador"], num(r["valor"]), num(r["minimo"]), r["cumpriu"], r["observacao"]])
+    idhm = defaultdict(list)
+    for r in ler(PREF, "dados", "indicadores", "idhm.csv"):
+        idhm[r["cod_ibge"]].append([int(r["ano"]), num(r["idhm"]), num(r["idhm_educacao"]), num(r["idhm_longevidade"]), num(r["idhm_renda"]), r["faixa"]])
+    declarado = defaultdict(list)  # prefeito declarado ao SIOPE quando não é o titular/vice do TSE (sinal de interino/sucessão)
+    for r in ler(PREF, "dados", "prefeito_declarado.csv"):
+        if r["situacao"].startswith(("outra pessoa", "sem mandato", "provável")):
+            declarado[r["cod_ibge"]].append([int(r["ano"]), r["periodo"], r["nome_declarado"], r["pessoa_id"], r["titular_tse"], r["situacao"], r["data_declaracao"]])
     emendas = defaultdict(lambda: defaultdict(float))
     for r in ler(PREF, "dados", "indicadores", "emendas_recebidas.csv"):
         emendas[r["cod_ibge"]][(int(r["ano"]), r["autor"], r["tipo_emenda"])] += float(r["valor_recebido"])
@@ -222,13 +301,17 @@ def main():
         pref = [{"ciclo": int(m["ciclo"]), "periodo": m["periodo"], "id": m["pessoa_id"], "nome": m["prefeito"], "urna": m["nome_urna"],
                  "partido": m["partido"], "vice_id": m["vice_pessoa_id"], "vice": m["vice"], "vice_partido": m["vice_partido"],
                  "origem": m["origem"], "inicio": m["inicio"], "fim": m["fim_previsto"], "votos": num(m["votos"], int),
-                 "pct": num(m["pct_votos_nominais"]), "seguido": m["mandato_seguido"], "obs": m["observacao"], "fonte": m["fonte"]}
+                 "pct": num(m["pct_votos_nominais"]), "seguido": m["mandato_seguido"], "fonte": m["fonte"],
+                 "obs": m["observacao"] + ("; fundamento no TSE: " + ", ".join(sorted({j[4] for j in jul.get(m["pessoa_id"], []) if j[0] == int(m["ciclo"])}))
+                                           if "interrompido" in m["observacao"] and any(j[0] == int(m["ciclo"]) for j in jul.get(m["pessoa_id"], [])) else "")}
                 for m in sorted(prefeitos.get(cod, []), key=lambda m: m["inicio"])]
         gravar_json(os.path.join(DATA, "m", cod + ".json"), {
             "cod": cod, "nome": nome, "prefeitos": pref,
             "camara": {k: sorted(v, key=lambda x: -(x[4] or 0)) for k, v in sorted(camara[cod].items())},
             "eleicoes": {k: sorted(v, key=lambda x: (x[9] or "", x[7], -(x[4] or 0))) for k, v in sorted(eleicoes[cod].items())},
-            "ibge": sorted(ibge[cod]), "fin_campos": campos_fin, "fin": fin[cod], "ideb": ideb[cod], "siope": sorted(siope[cod]),
+            "ibge": sorted(ibge[cod]), "fin_campos": campos_fin, "fin": fin[cod], "ideb": ideb[cod], "siope": sorted(siope[cod]), "siops": sorted(siops[cod]), "idhm": sorted(idhm[cod]), "declarado": declarado[cod], "gest": sorted(gest_cod[cod]),
+            "normas": {"n": len(normas[cod]), "lista": sorted(normas[cod], reverse=True)[:150]} if normas[cod] else None,
+            "mesa": sorted(mesa[cod], reverse=True), "cam_fin": sorted(cam_fin[cod]), "sapl": cod in sapl_casas,
             "emendas": sorted([[a, au, t, round(v, 2)] for (a, au, t), v in emendas[cod].items()], key=lambda x: (x[0], -x[3])),
         })
 
@@ -248,19 +331,21 @@ def main():
         i_ano, i_dtp = (campos_fin.index("ano"), campos_fin.index("dtp_pct_rcl")) if campos_fin else (0, 0)
         dtp = ultimo([(int(r[i_ano]), r[i_dtp]) for r in fin[cod]]) if campos_fin else (None, None)
         em = sum(v for (a, _, _), v in emendas[cod].items() if a >= 2019)
+        asps = ultimo([(r[0], r[2]) for r in siops[cod] if r[1] == "asps_pct" and r[2]])
+        idh = ultimo([(r[0], r[1]) for r in idhm[cod] if r[0] == 2010])
         painel.append([nome, cod, pop[1], pibpc[1], pibpc[0], ai[1], ai[0], af[1], af[0], mde[1], mde[0], dtp[1], dtp[0],
-                       round(em / pop[1], 2) if pop[1] else None])
+                       round(em / pop[1], 2) if pop[1] else None, asps[1], asps[0], idh[1]])
     estudos["painel"] = {"titulo": "Painel comparativo dos 62 municípios (último dado disponível)",
                          "colunas": ["município", "cod", "população 2022", "PIB por habitante", "ano", "IDEB anos iniciais (rede municipal)", "ano",
                                      "IDEB anos finais (rede municipal)", "ano", "MDE (% impostos)", "ano", "pessoal/RCL (%)", "ano",
-                                     "emendas por habitante desde 2019"],
-                         "linhas": sorted(painel), "fonte": "IBGE, INEP, SIOPE/FNDE, SICONFI, CGU"}
+                                     "emendas por habitante desde 2019", "saúde (% receita própria)", "ano", "IDHM 2010"],
+                         "linhas": sorted(painel), "fonte": "IBGE, INEP, SIOPE/FNDE, SIOPS/MS, SICONFI, CGU, Atlas do Desenvolvimento Humano"}
     gravar_json(os.path.join(DATA, "estudos.json"), estudos)
     gravar_json(os.path.join(DATA, "indice.json"), {
         "gerado": datetime.now().isoformat(timespec="minutes"), "pessoas": indice,
         "municipios": sorted([[c, n] for c, n in muns.items()], key=lambda x: x[1]),
         "bancada": [[pid, cargo] for pid, cargo in bancada.items()],
-        "ausentes": ausentes,
+        "ausentes": sorted(set(ausentes)),
     })
     tam = sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(DATA) for f in fs)
     chk(tam < 200 * 2 ** 20, f"dados do site: {tam / 2 ** 20:.1f} MB em {sum(len(fs) for _, _, fs in os.walk(DATA))} arquivos")
