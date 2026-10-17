@@ -1,5 +1,5 @@
 __pycache__/
 scripts/
-INTEGRIDADE.md
-EM-OBRA-NEXUS.md
-_montar.log
+*.md
+!README.md
+_*.log
