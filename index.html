@@ -411,15 +411,17 @@ async function telaExplorar(arg){
       <label>Resultado<select name="res">${opt("", "todos")}${opt("1", "eleitos", st.res)}${opt("0", "não eleitos", st.res)}</select></label>
       <label>Gênero<select name="gen">${opt("", "todos")}${opt("F", "feminino", st.gen)}${opt("M", "masculino", st.gen)}</select></label>
       <button type="button" id="limpa">Limpar</button></div>
+    <div class="seg" id="ver" role="group" aria-label="Como listar"><button type="button" data-v="pessoa" aria-pressed="${st.ver !== "cand"}">Uma linha por pessoa</button><button type="button" data-v="cand" aria-pressed="${st.ver === "cand"}">Uma linha por candidatura</button></div>
     <div id="resumo"></div></section>
     <section class="card" id="graficos"><div class="grade2"><div><h2>Por partido</h2><div class="graf"><canvas id="gPart" aria-label="Candidaturas e eleitos por partido"></canvas></div></div>
       <div><h2>Por eleição</h2><div class="graf"><canvas id="gAno" aria-label="Candidaturas e eleitos por ano"></canvas></div></div></div>
       <p class="sub">Candidaturas e eleitos no recorte filtrado. Fonte: TSE, consulta_cand e votacao_candidato_munzona.</p></section>
     <section class="card"><div id="lista"></div></section>`;
-  let mostrar = 200;
+  let mostrar = 200, porPessoa = st.ver !== "cand";
+  document.querySelectorAll("#ver button").forEach(b => b.addEventListener("click", () => { porPessoa = b.dataset.v === "pessoa"; document.querySelectorAll("#ver button").forEach(x => x.setAttribute("aria-pressed", x === b)); mostrar = 200; filtra(); }));
   const filtra = () => {
     const f = Object.fromEntries([...document.querySelectorAll("#fx [name]")].map(e => [e.name, e.value]).filter(([,v]) => v !== ""));
-    history.replaceState(null, "", "#/explorar/" + new URLSearchParams(f).toString());
+    history.replaceState(null, "", "#/explorar/" + new URLSearchParams({...f, ...(porPessoa ? {} : {ver: "cand"})}).toString());
     const t = norm(f.q || "").trim(), regCods = f.reg ? new Set(C.cods.map((c,i) => MUNX[c].rgint === f.reg ? i : -9)) : null;
     const r = C.linhas.filter(l => (f.cargo === undefined || l[2] == f.cargo) && (f.partido === undefined || l[4] == f.partido) && (f.mun === undefined || l[3] == f.mun)
       && (!regCods || regCods.has(l[3])) && (f.ano === undefined || l[1] == f.ano) && (f.res === undefined || l[5] == f.res)
@@ -437,13 +439,26 @@ async function telaExplorar(arg){
     const porA = {}; r.forEach(l => { (porA[l[1]] ||= [0,0])[0]++; if (l[5]) porA[l[1]][1]++; }); const la = Object.keys(porA).sort();
     grafico(document.getElementById("gAno"), {type:"bar", data:{labels: la, datasets:[{label:"Candidaturas", data: la.map(a => porA[a][0]), backgroundColor: cor(0), borderRadius:0},{label:"Eleitos", data: la.map(a => porA[a][1]), backgroundColor: cor(1), borderRadius:0}]},
       options:{maintainAspectRatio:false, plugins:{legend:{labels:{color:corTxt()}}}, scales:{x:{...eixo, grid:{display:false}}, y:eixo}}});
-    const linhas = r.slice(0, mostrar).map(l => { const p = IDX.pessoas[l[0]], c = C.cargos[l[2]];
-      return `<tr><td><a href="#/p/${p[0]}" style="display:flex;gap:8px;align-items:center;text-decoration:none">${foto(p[0], p[5], "", p[2]||p[1]).replace('width="44" height="58"','width="30" height="40" style="width:30px;height:40px"').replace('class="sem-foto "','class="sem-foto" style="width:30px;height:40px;font-size:.7rem"')}<span><b style="font-weight:600">${esc(p[2] || p[1])}</b><br><span class="sub">${esc(p[2] && p[2] !== p[1] ? p[1] : "")}</span></span></a></td>
+    const celPessoa = p => `<td><a href="#/p/${p[0]}" style="display:flex;gap:8px;align-items:center;text-decoration:none">${foto(p[0], p[5], "", p[2]||p[1]).replace('width="44" height="58"','width="30" height="40" style="width:30px;height:40px"').replace('class="sem-foto "','class="sem-foto" style="width:30px;height:40px;font-size:.7rem"')}<span><b style="font-weight:600">${esc(p[2] || p[1])}</b><br><span class="sub">${esc(p[2] && p[2] !== p[1] ? p[1] : "")}</span></span></a></td>`;
+    let corpo, cab, total;
+    if (porPessoa) { // uma linha por pessoa, com as candidaturas do recorte resumidas (mais recente primeiro)
+      const grupos = new Map(); r.forEach(l => { if (!grupos.has(l[0])) grupos.set(l[0], []); grupos.get(l[0]).push(l); });
+      const gl = [...grupos.values()]; total = gl.length;
+      cab = `<th>Pessoa</th><th>Candidaturas no recorte</th><th>Onde (última)</th><th class="n">Eleita(o)</th><th class="n">Votos (última)</th>`;
+      corpo = gl.slice(0, mostrar).map(ls => { const p = IDX.pessoas[ls[0][0]], u = ls[0];
+        return `<tr>${celPessoa(p)}<td>${ls.map(l => `<span class="selo${l[5] ? " ouro" : ""}" title="${l[5] ? "eleito(a)" : "não eleito(a)"}">${l[1]} · ${esc((CARGO[C.cargos[l[2]]] || C.cargos[l[2]]).replace("(a)", ""))} · ${esc(C.partidos[l[4]] || "—")}${l[7] > 1 ? " · 2º t." : ""}</span>`).join("")}</td>
+          <td>${u[3] >= 0 ? linkMun(C.cods[u[3]]) : "Amazonas"}</td><td class="n">${ls.filter(l => l[5]).length} de ${ls.length}</td><td class="n">${nf(u[6])}</td></tr>`; }).join("");
+    } else {
+      total = r.length;
+      cab = `<th>Pessoa</th><th>Cargo</th><th class="n">Ano</th><th>Onde</th><th>Partido</th><th>Resultado</th><th class="n">Votos</th>`;
+      corpo = r.slice(0, mostrar).map(l => { const p = IDX.pessoas[l[0]], c = C.cargos[l[2]];
+        return `<tr>${celPessoa(p)}
         <td>${CARGO[c] || esc(c)}${l[7] > 1 ? " <span class='sub'>(2º turno)</span>" : ""}</td><td class="n">${l[1]}</td><td>${l[3] >= 0 ? linkMun(C.cods[l[3]]) : "Amazonas"}</td><td>${esc(C.partidos[l[4]] || "—")}</td>
         <td class="${l[5] ? "eleito" : ""}">${l[5] ? "eleito(a)" : "não eleito(a)"}</td><td class="n">${nf(l[6])}</td></tr>`; }).join("");
-    document.getElementById("lista").innerHTML = r.length ? `<h2>Resultado${r.length > mostrar ? ` (mostrando ${nf(mostrar)} de ${nf(r.length)})` : ` (${nf(r.length)})`}</h2>
-      <div class="rolar alto"><table class="tab"><thead><tr><th>Pessoa</th><th>Cargo</th><th class="n">Ano</th><th>Onde</th><th>Partido</th><th>Resultado</th><th class="n">Votos</th></tr></thead><tbody>${linhas}</tbody></table></div>
-      ${r.length > mostrar ? `<div class="pag"><button type="button" id="mais">Mostrar mais 500</button></div>` : ""}<p class="sub">Ordem: eleição mais recente, eleitos primeiro, depois votos. “Eleito” inclui eleito por QP e por média. Votos nominais no turno.</p>` : `<p class="vazio">Nenhuma candidatura com esses filtros.</p>`;
+    }
+    document.getElementById("lista").innerHTML = r.length ? `<h2>${porPessoa ? "Pessoas" : "Candidaturas"}${total > mostrar ? ` (mostrando ${nf(mostrar)} de ${nf(total)})` : ` (${nf(total)})`}</h2>
+      <div class="rolar alto"><table class="tab"><thead><tr>${cab}</tr></thead><tbody>${corpo}</tbody></table></div>
+      ${total > mostrar ? `<div class="pag"><button type="button" id="mais">Mostrar mais 500</button></div>` : ""}<p class="sub">${porPessoa ? "Cada pessoa aparece uma vez; as etiquetas são as candidaturas dela dentro dos filtros (escuras = eleita). Clique no nome para a ficha completa." : "Ordem: eleição mais recente, eleitos primeiro, depois votos."} “Eleito” inclui eleito por QP e por média. Votos nominais no turno.</p>` : `<p class="vazio">Nenhuma candidatura com esses filtros.</p>`;
     document.getElementById("mais")?.addEventListener("click", () => { mostrar += 500; filtra(); });
   };
   let tf; document.querySelectorAll("#fx [name]").forEach(e => e.addEventListener(e.tagName === "INPUT" ? "input" : "change", () => { mostrar = 200; clearTimeout(tf); tf = setTimeout(filtra, 200); }));
