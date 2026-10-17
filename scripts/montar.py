@@ -28,10 +28,15 @@ from datetime import datetime
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAIZ = os.path.dirname(BASE_DIR)  # projetos/pesquisa
 PREF = os.path.join(RAIZ, "dossieprefeitosAM")
-PARL = {"deputadosfederais": ("camara", "deputado_federal", "deputados"), "senadorAM": ("senado", "senador", "senadores")}
+PARL = {"deputadosfederais": ("camara", "deputado_federal", "deputados"), "senadorAM": ("senado", "senador", "senadores"),
+        "estaduaisAM": ("aleam", "deputado_estadual", "deputados")}  # estaduaisAM: deputados estaduais + governadores (Claude)
+LEIS = os.path.join(RAIZ, "leismunicipais", "municipais", "AM")  # leis municipais em Markdown (Nexus/Claude)
 GITHUB = "https://github.com/leonzordhue/{repo}/blob/main/{caminho}"
 DATA = os.path.join(BASE_DIR, "data")
 ELEITO = {"ELEITO", "ELEITO POR QP", "ELEITO POR MÉDIA", "MÉDIA"}
+# letra do cargo no índice (indice.json): ordem = hierarquia usada na tela
+FLAGS = (("G", "governador"), ("H", "vice-governador"), ("S", "senador"), ("D", "deputado_federal"), ("A", "deputado_estadual"),
+         ("P", "prefeito"), ("V", "vice-prefeito"), ("E", "vereador"))
 
 checagens, alertas, ausentes = [], [], []
 
@@ -151,6 +156,16 @@ def main():
         cam_fin[r["cod_ibge"]].append([int(r["ano"]), num(r["legislativa_empenhado"]) or num(r["camara_empenhado"]),  # função Legislativa; MSC onde ela falta
                                     num(r["camara_pessoal"]), num(r["camara_pessoal_pct_rcl"])])
     sapl_casas = {c for c, _ in sapl_pid}
+    # Câmaras no Diário Oficial dos Municípios (script 26): suplentes em ato de posse/convocação e autorias de vereador
+    cam_aam = defaultdict(lambda: {"n": 0, "sup": {}, "aut": Counter(), "fonte_aut": {}})
+    for r in ler(PREF, "dados", "camaras_aam_materias.csv"):
+        cam_aam[r["cod_ibge"]]["n"] += 1
+    for r in ler(PREF, "dados", "vereadores_suplentes_posse.csv"):
+        if r["papel"] == "suplente no ciclo" and r["pessoa_id"] not in cam_aam[r["cod_ibge"]]["sup"]:  # primeira menção de cada suplente
+            cam_aam[r["cod_ibge"]]["sup"][r["pessoa_id"]] = [r["data"], r["nome_tse"], r["pessoa_id"], r["motivo_no_ato"], r["fonte"]]
+    for r in ler(PREF, "dados", "camaras_aam_autorias.csv"):
+        cam_aam[r["cod_ibge"]]["aut"][(r["pessoa_id"], r["nome_tse"])] += 1
+        cam_aam[r["cod_ibge"]]["fonte_aut"].setdefault(r["pessoa_id"], r["fonte"])
     tcedec = defaultdict(list)  # decisões do TCE-AM desde 2016 (jurisprudência) em que prefeito/vice é parte
     for r in ler(PREF, "dados", "indicadores", "tceam_decisoes.csv"):
         tcedec[r["pessoa_id"]].append([r["data_arquivo"], r["orgao"], r["natureza"], r["processo"], r["decisorio"], r["termos"], r["arquivo"], r["objeto"]])
@@ -164,8 +179,8 @@ def main():
     for r in ler(PREF, "dados", "julgamentos.csv"):
         jul[r["pessoa_id"]].append([int(r["ano"]), r["cargo"], r["cod_ibge"], r["resultado"], r["motivo"], r["categoria"], r["fonte"]])
 
-    # ------------------------------------------------------------ parlamentares (Claude)
-    bancada = {}
+    # ------------------------------------------------------------ parlamentares e governadores (Claude)
+    bancada, ids_casa, cand_vistas, prop = {}, {}, set(), defaultdict(list)
     for repo, (casa, cargo, pasta) in PARL.items():
         base = os.path.join(RAIZ, repo)
         if not os.path.isdir(base):
@@ -177,6 +192,9 @@ def main():
         for i in ler(base, "dados", "identificadores.csv"):
             if i["sistema"] == casa:
                 ids_ext[i["valor"]] = i["pessoa_id"]
+        ids_casa[casa] = ids_ext
+        universo = json.load(open(os.path.join(base, "dados", "universo.json"), encoding="utf-8")) \
+            if os.path.exists(os.path.join(base, "dados", "universo.json")) else {}  # estaduaisAM: pessoa -> cargos (deputado/governador)
         for p in ps:
             pid = p["pessoa_id"]
             if pid not in pessoas:
@@ -193,25 +211,60 @@ def main():
             pessoas[pid]["urna_parl"] = p["nome_urna_mais_recente"]
             if p.get("foto") and os.path.exists(os.path.join(base, p["foto"])):
                 fotos_origem[pid] = os.path.join(base, p["foto"])  # foto oficial da Casa tem prioridade sobre a do TSE
-            bancada[pid] = cargo
-            dossie = os.path.join(base, pasta, slug(p["nome_urna_mais_recente"] or p["nome"]) + ".md")
-            achado = next((os.path.join(base, pasta, f) for f in (os.listdir(os.path.join(base, pasta)) if os.path.isdir(os.path.join(base, pasta)) else [])
+            cargo_p = (universo.get(pid) or [cargo])[0]  # estaduaisAM tem deputados e governadores no mesmo repositório
+            pasta_p = "governadores" if cargo_p in ("governador", "vice-governador") else pasta
+            if bancada.get(pid) not in ("senador", "governador"):  # quem foi deputado e senador/governador fica com o cargo mais alto
+                bancada[pid] = cargo_p
+            dossie = os.path.join(base, pasta_p, slug(p["nome_urna_mais_recente"] or p["nome"]) + ".md")
+            achado = next((os.path.join(base, pasta_p, f) for f in (os.listdir(os.path.join(base, pasta_p)) if os.path.isdir(os.path.join(base, pasta_p)) else [])
                            if f.endswith(".md") and slug(f[:-3]) in (slug(p["nome"]), slug(p["nome_urna_mais_recente"]))), None)
             dossie = achado or (dossie if os.path.exists(dossie) else None)
-            parl[pid] = {"casa": casa, "repo": repo, "dossie": GITHUB.format(repo=repo, caminho=os.path.relpath(dossie, base).replace("\\", "/"))
-                         if dossie else "", "resumo": []}
+            # quem passou por mais de uma Casa (ex.: deputado estadual e depois federal) tem uma entrada por Casa
+            parl.setdefault(pid, []).append({"casa": casa, "repo": repo, "resumo": [], "dossie": GITHUB.format(
+                repo=repo, caminho=os.path.relpath(dossie, base).replace("\\", "/")) if dossie else ""})
         for c in ler(base, "dados", "candidaturas.csv"):
+            chave = (c["pessoa_id"], int(c["ano"]), c["cargo"], num(c["turno"], int) or 1)
+            if chave in cand_vistas:  # a mesma candidatura vem de mais de um repositório (a pessoa está no universo de dois)
+                continue
+            cand_vistas.add(chave)
             cand[c["pessoa_id"]].append([int(c["ano"]), c["cargo"], c["cod_ibge"], c["partido"], c["numero"], c["resultado"].upper(),
                                          num(c["votos"], int), num(c["pct"]), num(c["turno"], int) or 1, (c["tipo_eleicao"] or "o")[0],
                                          "", c["nome_urna"]])
         for m in ler(base, "dados", "mandatos.csv"):
             mand[m["pessoa_id"]].append([m["cargo"], m["cod_ibge"], m["inicio"], m["fim"], m.get("partido", ""), m["origem"], m["observacao"]])
         for r in ler(base, "dados", "resumo.csv"):
-            pid = ids_ext.get(r.get("codigo") or r.get("id") or "")
-            if pid in parl:
-                parl[pid]["resumo"].append(r)
+            pid = r.get("pessoa_id") or ids_ext.get(r.get("codigo") or r.get("id") or "")
+            entrada = next((e for e in parl.get(pid, []) if e["casa"] == casa), None)
+            if entrada:
+                entrada["resumo"].append({k: v for k, v in r.items() if k != "pessoa_id"})
             else:
                 alertas.append(f"{repo}/dados/resumo.csv: linha sem pessoa ligada ({r.get('senador') or r.get('deputado') or r})")
+        # patrimônio declarado nas eleições gerais (estaduaisAM publica os bens item a item; o resumo é a soma por eleição)
+        soma_bens = defaultdict(lambda: [0.0, 0])
+        for b in ler(base, "dados", "bens.csv") if repo == "estaduaisAM" else []:
+            s = soma_bens[(b["pessoa_id"], int(b["ano"]))]
+            s[0] += num(b["valor"]) or 0
+            s[1] += 1
+        for (pid, ano), (tot, n) in soma_bens.items():
+            if not any(x[0] == ano for x in bens[pid]):  # ano já declarado numa eleição municipal: não duplica
+                cargo_b = next((c[1] for c in cand[pid] if c[0] == ano), "")
+                bens[pid].append([ano, cargo_b, "", round(tot, 2), n, round(tot, 2), 0])
+        # proposições na Casa (deputados federais e estaduais) e matérias (senadores): contagem por tipo + as mais recentes
+        if repo == "deputadosfederais":
+            for r in ler(base, "dados", "proposicoes.csv"):
+                pid = ids_ext.get(r["idDeputado"])
+                if pid:
+                    prop[pid].append([r["data"][:10], r["sigla"], r["sigla"] + (" → " + r["norma"] if r.get("norma") else ""), r["ementa"][:220],
+                                      r["url"], 1 if r["virou_norma"] in ("True", "1", "sim") else 0, casa])
+        elif repo == "senadorAM":
+            for r in ler(base, "dados", "materias.csv"):
+                pid = ids_ext.get(r["codigo"])
+                if pid:
+                    prop[pid].append([r["data"][:10], r["sigla"], r["identificacao"], r["ementa"][:220], r["url"], 1 if r["norma"] else 0, casa])
+        elif repo == "estaduaisAM":
+            for r in ler(base, "dados", "proposicoes.csv"):
+                if r["pessoa_id"]:
+                    prop[r["pessoa_id"]].append([r["data"][:10], r["sigla"], r["ident"], r["ementa"][:220], r["url"], 1 if r["norma"] else 0, casa])
 
     # ------------------------------------------------------------ integridade da junção
     orfaos = [k for k in list(cand) + list(mand) + list(bens) if k not in pessoas]
@@ -229,6 +282,36 @@ def main():
             pessoas[pid]["foto"] = 1
     chk(all(os.path.exists(os.path.join(BASE_DIR, "fotos", p + ".jpg")) for p in pessoas if pessoas[p].get("foto")),
         f"{sum(1 for p in pessoas.values() if p.get('foto'))} fotos copiadas e presentes")
+
+    # ------------------------------------------------------------ cota parlamentar (CEAP/CEAPS) das três Casas
+    ceap_linhas = []  # [pessoa_id, casa, ano, categoria, valor]
+    for r in ler(RAIZ, "deputadosfederais", "dados", "ceap_resumo.csv"):
+        pid = ids_casa.get("camara", {}).get(r["idDeputado"])
+        if pid:
+            ceap_linhas.append([pid, "camara", int(r["ano"]), r["categoria"].strip(), num(r["valor"]) or 0])
+    for r in ler(RAIZ, "senadorAM", "dados", "ceaps_resumo.csv"):
+        pid = ids_casa.get("senado", {}).get(r["codigo"])
+        if pid:
+            ceap_linhas.append([pid, "senado", int(r["ano"]), r["tipo"].strip(), num(r["valor"]) or 0])
+    for r in ler(RAIZ, "estaduaisAM", "dados", "ceap_resumo.csv"):
+        if r["pessoa_id"]:
+            ceap_linhas.append([r["pessoa_id"], "aleam", int(r["ano"]), r["categoria"].strip(), num(r["valor"]) or 0])
+    for l in ceap_linhas:  # cada Casa grafa a categoria de um jeito ("Divulgação Da Atividade Parlamentar." × "DIVULGAÇÃO..."): uma grafia só
+        c = re.sub(r"\s+", " ", l[3]).strip().rstrip(".").strip().lower()
+        l[3] = c[:1].upper() + c[1:] or "Categoria não informada"
+    ceap_pid = defaultdict(list)
+    for l in ceap_linhas:
+        ceap_pid[l[0]].append(l[1:])
+    chk(all(l[0] in pessoas for l in ceap_linhas), f"cota parlamentar: {len(ceap_linhas)} linhas (pessoa × casa × ano × categoria), todas ligadas")
+    # emendas estaduais (SEFAZ-AM): por deputado e por município
+    em_est_pid, em_est_mun = defaultdict(lambda: defaultdict(float)), defaultdict(lambda: defaultdict(float))
+    for r in ler(RAIZ, "estaduaisAM", "dados", "emendas.csv"):
+        pago = num(r["pago"]) or 0
+        if r["pessoa_id"]:
+            em_est_pid[r["pessoa_id"]][(int(r["ano"]), r["cod_ibge"] or "", r["orgao"])] += pago
+        if r["cod_ibge"]:
+            em_est_mun[r["cod_ibge"]][(int(r["ano"]), r["pessoa_id"], r["autor"])] += pago
+    hoje = datetime.now().strftime("%Y-%m-%d")
 
     # ------------------------------------------------------------ fichas das pessoas
     shards = defaultdict(dict)
@@ -261,14 +344,23 @@ def main():
             ficha["jul"] = sorted(jul[pid])
         if pid in parl:
             ficha["parl"] = parl[pid]
+        if pid in prop:
+            pr = sorted(prop[pid], reverse=True)
+            ficha["prop"] = {"n": len(pr), "normas": sum(x[5] for x in pr), "tipos": Counter(x[1] for x in pr).most_common(12), "lista": pr[:150]}
+        if pid in ceap_pid:
+            ficha["ceap"] = sorted(ceap_pid[pid])
+        if pid in em_est_pid:
+            ficha["em_est"] = sorted([[a, c, o, round(v, 2)] for (a, c, o), v in em_est_pid[pid].items()], key=lambda x: (-x[0], -x[3]))
         shards[pid[:2]][pid] = ficha
         cargos = {m[0] for m in ms}
-        flags = "".join(f for f, c in (("P", "prefeito"), ("V", "vice-prefeito"), ("E", "vereador"), ("D", "deputado_federal"), ("S", "senador"))
-                        if c in cargos or bancada.get(pid) == c)
+        flags = "".join(f for f, c in FLAGS if c in cargos or bancada.get(pid) == c)
+        atual = "".join(f for f, c in FLAGS if any(m[0] == c and m[2] and m[2] <= hoje and (not m[3] or m[3] >= hoje or "em exercício" in (m[6] or ""))
+                                                   for m in ms))
         ult = cs[-1] if cs else None
         cod = next((m[1] for m in reversed(ms) if m[1]), None) or next((c[2] for c in reversed(cs) if c[2]), "")
         urna = p.get("urna_parl") or (ult[11] if ult else "")
-        indice.append([pid, p["nome"], urna, flags or "c", cod, 1 if p.get("foto") else 0, ult[0] if ult else None])
+        indice.append([pid, p["nome"], urna, flags or "c", cod, 1 if p.get("foto") else 0, ult[0] if ult else None,
+                       ult[3] if ult else "", (p.get("genero") or " ")[0].upper().strip(), atual])
     for k, v in shards.items():
         gravar_json(os.path.join(DATA, "p", k + ".json"), v)
 
@@ -327,6 +419,12 @@ def main():
         for c in cs:
             if c[1] == "prefeito":
                 eleicoes[c[2]][c[0]].append([pid, pessoas[pid]["nome"] if pid in pessoas else "", c[11], c[3], c[6], c[7], c[5], c[8], c[9], c[10]])
+    leis = ler_leis(muns)
+    chk(sum(map(len, leis.values())) > 0, f"leis municipais: {sum(map(len, leis.values()))} leis em {len(leis)} municípios")
+    regioes = json.load(open(os.path.join(BASE_DIR, "scripts", "am_regioes.json"), encoding="utf-8"))["municipios"]
+    chk(set(regioes) == set(muns), "regiões e área (IBGE 2022) para os 62 municípios")
+    for cod, lista in leis.items():
+        gravar_json(os.path.join(DATA, "l", cod + ".json"), sorted(lista, key=lambda x: (x[0] or str(x[1]), x[3]), reverse=True))
     for cod, nome in muns.items():
         pref = [{"ciclo": int(m["ciclo"]), "periodo": m["periodo"], "id": m["pessoa_id"], "nome": m["prefeito"], "urna": m["nome_urna"],
                  "partido": m["partido"], "vice_id": m["vice_pessoa_id"], "vice": m["vice"], "vice_partido": m["vice_partido"],
@@ -341,8 +439,13 @@ def main():
             "eleicoes": {k: sorted(v, key=lambda x: (x[9] or "", x[7], -(x[4] or 0))) for k, v in sorted(eleicoes[cod].items())},
             "ibge": sorted(ibge[cod]), "fin_campos": campos_fin, "fin": fin[cod], "ideb": ideb[cod], "siope": sorted(siope[cod]), "siops": sorted(siops[cod]), "idhm": sorted(idhm[cod]), "declarado": declarado[cod], "atos": atos_mun[cod], "gest": sorted(gest_cod[cod]),
             "normas": {"n": len(normas[cod]), "lista": sorted(normas[cod], reverse=True)[:150]} if normas[cod] else None,
-            "mesa": sorted(mesa[cod], reverse=True), "cam_fin": sorted(cam_fin[cod]), "sapl": cod in sapl_casas,
+            "mesa": sorted(mesa[cod], reverse=True), "cam_fin": sorted(cam_fin[cod]), "cam_aam": {"n": cam_aam[cod]["n"], "sup": sorted(cam_aam[cod]["sup"].values()), "aut": [[p, n, k, cam_aam[cod]["fonte_aut"][p]] for (p, n), k in cam_aam[cod]["aut"].most_common(20)]} if cod in cam_aam else None, "sapl": cod in sapl_casas,
             "emendas": sorted([[a, au, t, round(v, 2)] for (a, au, t), v in emendas[cod].items()], key=lambda x: (x[0], -x[3])),
+            "em_est": sorted([[a, p, au, round(v, 2)] for (a, p, au), v in em_est_mun[cod].items()], key=lambda x: (x[0], -x[3])),
+            "regiao": regioes.get(cod, {}),
+            "leis": {"n": len(leis[cod]), "anos": sorted(Counter(str(l[1]) for l in leis[cod]).items()),
+                     "tipos": Counter(l[2] for l in leis[cod]).most_common(), "assuntos": Counter(l[7] for l in leis[cod]).most_common(),
+                     "origem": Counter(l[8] for l in leis[cod]).most_common()} if leis[cod] else None,
         })
 
     # ------------------------------------------------------------ estudos
@@ -371,9 +474,10 @@ def main():
                                      "emendas por habitante desde 2019", "saúde (% receita própria)", "ano", "IDHM 2010"],
                          "linhas": sorted(painel), "fonte": "IBGE, INEP, SIOPE/FNDE, SIOPS/MS, SICONFI, CGU, Atlas do Desenvolvimento Humano"}
     gravar_json(os.path.join(DATA, "estudos.json"), estudos)
+    almanaque(pessoas, cand, mand, muns, bancada, ceap_linhas, leis, indice, hoje)
     gravar_json(os.path.join(DATA, "indice.json"), {
         "gerado": datetime.now().isoformat(timespec="minutes"), "pessoas": indice,
-        "municipios": sorted([[c, n] for c, n in muns.items()], key=lambda x: x[1]),
+        "municipios": sorted([[c, n, regioes[c]["rgint"], regioes[c]["rgi"], regioes[c]["area_km2"]] for c, n in muns.items()], key=lambda x: x[1]),
         "bancada": [[pid, cargo] for pid, cargo in bancada.items()],
         "ausentes": sorted(set(ausentes)),
     })
@@ -388,6 +492,190 @@ def main():
                 + "\n\n## Arquivos esperados e ainda não publicados pelos repositórios\n\n" + ("\n".join(f"- {a}" for a in ausentes) or "- nenhum")
                 + "\n\n## Alertas para verificação humana\n\n" + ("\n".join(f"- ⚠️ {a}" for a in alertas) or "- nenhum") + "\n")
     print(f"pessoas={len(pessoas)} bancada={len(bancada)} checagens={ok}/{len(checagens)} alertas={len(alertas)} ausentes={ausentes}")
+
+
+# assunto da lei pela ementa: a primeira regra que casar vale (ordem importa: "denomina rua" é homenagem, não obra)
+ASSUNTOS = [
+    ("Homenagens e denominações", r"denomina|t[ií]tulo de cidad|cidad[aã]o (honor|benem)|honra ao m[eé]rito|medalha|comenda|homenage"),
+    ("Utilidade pública", r"utilidade p[uú]blica"),
+    ("Orçamento e créditos", r"or[cç]ament|diretrizes or|plano plurianual|\bppa\b|\bldo\b|\bloa\b|cr[eé]dito (adicional|especial|suplementar)|abertura de cr"),
+    ("Tributos e receitas", r"tribut|\biptu\b|\biss\b|\bitbi\b|taxa|refis|anistia|isen[cç][aã]o|d[ií]vida ativa|parcelamento de d[eé]b"),
+    ("Servidores e estrutura", r"servidor|cargo|carreira|pccr|vencimento|remunera|subs[ií]dio|reajuste|estrutura (administrativa|organizacional)|secretaria municipal|quadro de pessoal|contrata[cç][aã]o tempor|previd[eê]ncia"),
+    ("Saúde", r"sa[uú]de|hospital|\bsus\b|m[eé]dic|vacina|epidem|sanit[aá]ri"),
+    ("Educação", r"educa[cç]|escola|ensino|fundeb|professor|creche|merenda"),
+    ("Obras, vias e transporte", r"\brua\b|avenida|estrada|ramal|ramais|pavimenta|asfalt|ponte|transporte|tr[aâ]nsito|mobilidade|obra|logradouro|loteamento|perímetro urbano|plano diretor|uso do solo"),
+    ("Terras e patrimônio", r"doa[cç][aã]o|desafeta|im[oó]vel|terreno|aliena[cç][aã]o|permuta|concess[aã]o de uso|patrim[oô]nio"),
+    ("Meio ambiente e saneamento", r"ambient|res[ií]duo|lixo|saneamento|[aá]gua|esgoto|floresta|arboriza"),
+    ("Assistência e direitos", r"assist[eê]ncia social|crian[cç]a|adolescente|idoso|mulher|defici[eê]ncia|conselho tutelar|fam[ií]lia|ind[ií]gena|igualdade"),
+    ("Cultura, esporte e turismo", r"cultur|esporte|desport|turis|festival|festa|carnaval|folcl|calend[aá]rio|data comemorativa|dia municipal|semana municipal"),
+    ("Economia e agricultura", r"agricult|produtor|pesca|pescador|rural|com[eé]rcio|feira|empreend|microempresa|cooperativ|abastecimento"),
+    ("Segurança e ordem", r"seguran[cç]a|guarda municipal|defesa civil|ordem p[uú]blica|fiscaliza"),
+    ("Conselhos e fundos", r"conselho municipal|fundo municipal|cria o conselho|institui o fundo"),
+]
+ASSUNTOS_RE = [(n, re.compile(p, re.I)) for n, p in ASSUNTOS]
+
+
+def assunto(texto):
+    return next((n for n, rx in ASSUNTOS_RE if rx.search(texto)), "Outros")
+
+
+def ler_leis(muns):
+    """Cabeçalho YAML das leis em leismunicipais/municipais/AM/<municipio>/ (AAM e SAPL). Devolve {cod_ibge: [lei, ...]},
+    lei = [data, ano, tipo, numero, ementa, fonte, caminho no repositório, assunto, origem (aam/sapl)]."""
+    por_slug = {slug(n): c for c, n in muns.items()}
+    leis = defaultdict(list)
+    if not os.path.isdir(LEIS):
+        ausentes.append("leismunicipais/municipais/AM")
+        return leis
+    for pasta in os.listdir(LEIS):
+        cod = por_slug.get(pasta)
+        if not cod:
+            continue
+        for raiz, _, arqs in os.walk(os.path.join(LEIS, pasta)):
+            for a in arqs:
+                if not a.endswith(".md"):
+                    continue
+                cam = os.path.join(raiz, a)
+                with open(cam, encoding="utf-8") as f:
+                    cab = f.read(4000).split("\n---", 1)[0]
+                d = {}
+                for linha in cab.splitlines()[1:]:
+                    k, _, v = linha.partition(":")
+                    v = v.strip()
+                    try:
+                        d[k.strip()] = json.loads(v) if v.startswith('"') else v
+                    except ValueError:
+                        d[k.strip()] = v.strip('"')
+                ementa = re.sub(r"\s+", " ", d.get("ementa") or d.get("titulo") or "").strip()
+                leis[cod].append([d.get("data") or d.get("data_publicacao") or "", d.get("ano", ""), d.get("tipo", ""), d.get("numero", ""), ementa[:300],
+                                  d.get("fonte", ""), os.path.relpath(cam, os.path.dirname(os.path.dirname(LEIS))).replace("\\", "/"),
+                                  assunto(ementa), "sapl" if "sapl_id" in d else "aam"])
+    return leis
+
+
+# incorporações e mudanças de nome (TSE/registro dos partidos). A plataforma mostra a sigla da época; isto é só a nota "hoje".
+PARTIDO_HOJE = {"PMDB": "MDB", "PFL": "DEM", "DEM": "UNIÃO", "PSL": "UNIÃO", "PPB": "PP", "PR": "PL", "PTN": "PODE",
+                "PHS": "PODE", "PSC": "PODE", "PSDC": "DC", "PRB": "REPUBLICANOS", "PPS": "CIDADANIA", "PT do B": "AVANTE", "PEN": "PATRIOTA",
+                "PATRIOTA": "PRD", "PTB": "PRD", "PRP": "PATRIOTA", "PPL": "PC do B", "PROS": "SOLIDARIEDADE", "SD": "SOLIDARIEDADE"}
+
+
+def partido_final(p):
+    """Sigla atual da linhagem (PFL → DEM → UNIÃO)."""
+    vistos = set()
+    while p in PARTIDO_HOJE and p not in vistos:
+        vistos.add(p)
+        p = PARTIDO_HOJE[p]
+    return p
+CARGOS_ORDEM = ["governador", "vice-governador", "senador", "suplente_senador", "deputado_federal", "deputado_estadual", "prefeito", "vice-prefeito", "vereador"]
+
+
+def almanaque(pessoas, cand, mand, muns, bancada, ceap_linhas, leis, indice, hoje):
+    """Saídas da versão almanaque (v2, Nexus): índice de candidaturas para a busca com filtros, quem governa hoje, partidos,
+    gastos (cota e emendas), busca de leis e camadas do mapa. Tudo derivado do que já foi lido; nada coletado aqui."""
+    pos = {l[0]: i for i, l in enumerate(indice)}
+    cods = sorted(muns, key=lambda c: muns[c])
+    cpos = {c: i for i, c in enumerate(cods)}
+    # 1. candidaturas (uma linha por candidatura × turno) para filtrar por cargo, partido, município, ano e resultado
+    partidos = sorted({c[3] for cs in cand.values() for c in cs if c[3]})
+    ppos = {p: i for i, p in enumerate(partidos)}
+    linhas = []
+    for pid, cs in cand.items():
+        if pid not in pos:
+            continue
+        for c in cs:
+            if c[1] not in CARGOS_ORDEM:
+                continue
+            linhas.append([pos[pid], c[0], CARGOS_ORDEM.index(c[1]), cpos.get(c[2], -1), ppos.get(c[3], -1), 1 if c[5] in ELEITO else 0, c[6] or 0, c[8]])
+    gravar_json(os.path.join(DATA, "cand.json"), {"cargos": CARGOS_ORDEM, "partidos": partidos, "cods": cods, "linhas": linhas})
+    chk(len(linhas) > 50000, f"busca com filtros: {len(linhas)} candidaturas indexadas, {len(partidos)} siglas")
+
+    # 2. quem exerce mandato hoje
+    def vigente(m):  # os repositórios das Casas fecham o mandato em curso na data da coleta e marcam "em exercício"
+        return m[2] and m[2] <= hoje and (not m[3] or m[3] >= hoje or "em exercício" in (m[6] or ""))
+    atual = defaultdict(list)
+    for pid, ms in mand.items():
+        for m in ms:
+            if vigente(m) and pid in pessoas:
+                atual[m[0]].append([pid, m[1], m[4] or next((c[3] for c in sorted(cand.get(pid, []), reverse=True) if c[1] == m[0]), "")])
+    pref_atual = {}
+    for pid, cod, partido in atual["prefeito"]:
+        pref_atual[cod] = [pid, partido]
+    gravar_json(os.path.join(DATA, "hoje.json"), {"data": hoje, "cargos": {k: v for k, v in atual.items()}, "prefeitos": pref_atual})
+    chk(len(pref_atual) >= 60, f"quem governa hoje: {len(pref_atual)} prefeitos em exercício (pelo mandato do TSE), "
+        + ", ".join(f"{len(v)} {k}" for k, v in sorted(atual.items()) if k != "prefeito"))
+
+    # 3. partidos: eleitos por ciclo e cargo, quem está no cargo hoje, trocas de partido entre candidaturas
+    eleitos = defaultdict(lambda: defaultdict(Counter))
+    cands = defaultdict(Counter)
+    votos = defaultdict(Counter)
+    trocas = Counter()
+    for pid, cs in cand.items():
+        seq = []
+        for c in sorted(cs, key=lambda c: (c[0], c[8])):
+            if not c[3]:
+                continue
+            cands[c[3]][c[0]] += 1
+            votos[c[3]][(c[0], c[1])] += c[6] or 0
+            if c[5] in ELEITO:
+                eleitos[c[3]][c[1]][c[0]] += 1
+            if not seq or seq[-1][1] != c[3]:
+                seq.append((c[0], c[3]))
+        for (a0, p0), (a1, p1) in zip(seq, seq[1:]):
+            if partido_final(p0) != partido_final(p1):  # mudança de nome/incorporação não conta como troca
+                trocas[(p0, p1)] += 1
+    em_cargo = defaultdict(list)
+    for cargo, l in atual.items():
+        for pid, cod, partido in l:
+            if partido:
+                em_cargo[partido].append([pos.get(pid), cargo, cod])
+    gravar_json(os.path.join(DATA, "partidos.json"), {
+        "partidos": {p: {"eleitos": {k: dict(v) for k, v in eleitos[p].items()}, "candidaturas": dict(cands[p]),
+                         "votos": [[a, c, v] for (a, c), v in sorted(votos[p].items())], "hoje": em_cargo.get(p, []),
+                         "atual": partido_final(p) if p in PARTIDO_HOJE else ""} for p in cands},
+        "trocas": [[a, b, n] for (a, b), n in trocas.most_common(400)]})
+
+    # 4. gastos: cota parlamentar (por categoria) e emendas (federais pelos repositórios das Casas; estaduais pela SEFAZ-AM)
+    cats = sorted({l[3] for l in ceap_linhas})
+    kpos = {k: i for i, k in enumerate(cats)}
+    emendas = []
+    for repo, casa, chave in (("deputadosfederais", "camara", "idDeputado"), ("senadorAM", "senado", "codigo")):
+        ids = {}
+        for i in ler(RAIZ, repo, "dados", "identificadores.csv"):
+            if i["sistema"] == casa:
+                ids[i["valor"]] = i["pessoa_id"]
+        for r in ler(RAIZ, repo, "dados", "emendas_resumo.csv"):
+            pid = ids.get(r[chave])
+            if pid in pos:
+                emendas.append([pos[pid], casa, int(r["ano"]), r["funcao"], num(r["pago"]) or 0, num(r["empenhado"]) or 0])
+    for r in ler(RAIZ, "estaduaisAM", "dados", "emendas.csv"):
+        if r["pessoa_id"] in pos:
+            emendas.append([pos[r["pessoa_id"]], "aleam", int(r["ano"]), r["orgao"], num(r["pago"]) or 0, num(r["empenhado"]) or 0])
+    agreg = defaultdict(lambda: [0.0, 0.0])
+    for e in emendas:
+        a = agreg[tuple(e[:4])]
+        a[0] += e[4]
+        a[1] += e[5]
+    gravar_json(os.path.join(DATA, "gastos.json"), {
+        "cats": cats, "ceap": [[pos[l[0]], l[1], l[2], kpos[l[3]], round(l[4], 2)] for l in ceap_linhas if l[0] in pos],
+        "emendas": [list(k) + [round(v[0], 2), round(v[1], 2)] for k, v in agreg.items()],
+        "fontes": {"camara": "Câmara dos Deputados, Dados Abertos (CEAP); CGU (emendas)", "senado": "Senado Federal, Dados Abertos (CEAPS); CGU (emendas)",
+                   "aleam": "ALEAM, Portal da Transparência (CEAP, 2023 em diante; PDFs 2015–2022 quando extraídos); SEFAZ-AM, Portal da Transparência Fiscal (emendas)"}})
+
+    # 5. busca de leis (todas as cidades): ementa curta + posição na lista do município (data/l/<cod>.json)
+    tipos = sorted({l[2] for ls in leis.values() for l in ls})
+    tpos = {t: i for i, t in enumerate(tipos)}
+    anames = [n for n, _ in ASSUNTOS] + ["Outros"]
+    apos = {a: i for i, a in enumerate(anames)}
+    busca = []
+    for cod, ls in leis.items():
+        for i, l in enumerate(sorted(ls, key=lambda x: (x[0] or str(x[1]), x[3]), reverse=True)):
+            busca.append([cpos[cod], str(l[1]), tpos[l[2]], apos[l[7]], l[4][:170], i])
+    gravar_json(os.path.join(DATA, "leis.json"), {"cods": cods, "tipos": tipos, "assuntos": anames, "linhas": busca})
+
+    # 6. camadas do mapa (IBGE e SEINFRA)
+    os.makedirs(os.path.join(DATA, "mapa"), exist_ok=True)
+    for a, b in (("am_municipios.geojson", "municipios.geojson"), ("am_rodovias.geojson", "rodovias.geojson")):
+        shutil.copyfile(os.path.join(BASE_DIR, "scripts", a), os.path.join(DATA, "mapa", b))
 
 
 def estudos_calc(pessoas, cand, prefeitos, camara, fin, ideb, ibge, emendas, bens, muns):
