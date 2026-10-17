@@ -98,8 +98,8 @@ p.sub{max-width:78ch}
 .ficha h1{max-width:18ch}
 .eleito{color:var(--ok);font-weight:600}
 .alerta{border-left:3px solid var(--acento);padding:10px 14px;background:var(--papel2);font-size:.9rem;margin:.8rem 0;max-width:80ch}
-.graf{position:relative;height:300px}
-.graf.baixo{height:230px}
+.graf{position:relative;height:340px;margin:6px 0 4px}
+.graf.baixo{height:260px}
 select,button,input[type=search].campo,input[type=text].campo{font:400 .92rem var(--sans);padding:8px 10px;border:1px solid var(--linha2);border-radius:0;background:var(--papel);color:var(--txt)}
 select:focus,input.campo:focus{outline:none;border-color:var(--acento)}
 button{cursor:pointer;font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
@@ -179,6 +179,7 @@ footer{max-width:1280px;margin:0 auto;padding:22px 24px 36px;color:var(--sub);fo
   <a href="#/hoje" data-r="hoje">Governo hoje</a>
   <a href="#/municipios" data-r="municipios">Municípios</a>
   <a href="#/partidos" data-r="partidos">Partidos</a>
+  <a href="#/rankings" data-r="rankings">Rankings</a>
   <a href="#/gastos" data-r="gastos">Gastos</a>
   <a href="#/leis" data-r="leis">Leis</a>
   <a href="#/estudos" data-r="estudos">Estudos</a>
@@ -303,6 +304,7 @@ async function telaInicio(){
   <section class="card"><h2>Neste almanaque</h2><div class="atalhos">
    <a class="atalho" href="#/explorar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><div><b>Explorar candidaturas</b><span>Filtre por cargo, partido, município, ano e resultado.</span></div></a>
    <a class="atalho" href="#/partidos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg><div><b>Partidos</b><span>Quantos elegeram, onde governam e quem trocou de legenda.</span></div></a>
+   <a class="atalho" href="#/rankings"><svg viewBox="0 0 24 24"></svg><div><b>Rankings</b><span>Quem produz mais leis gastando menos cota, presença, gabinetes, fornecedores.</span></div></a>
    <a class="atalho" href="#/gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V7"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"/><path d="M4 3h16v18H4z"/></svg><div><b>Gastos dos parlamentares</b><span>Cota parlamentar e emendas de deputados e senadores.</span></div></a>
    <a class="atalho" href="#/leis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v16"/><path d="M20 19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4a5 5 0 0 0-4 2 5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg><div><b>Leis municipais</b><span>Busca nas leis das 62 cidades, por assunto e ano.</span></div></a>
    <a class="atalho" href="#/estudos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg><div><b>Estudos</b><span>Reeleição, mulheres eleitas, LRF, IDEB, patrimônio, troca de partido.</span></div></a>
@@ -360,7 +362,7 @@ async function telaMunicipios(){
 }
 
 function barrasH(el, rotulos, valores, {fmt = v => nf(v), nome = "", cores} = {}){
-  grafico(el, {type:"bar", data:{labels: rotulos, datasets:[{label: nome, data: valores, backgroundColor: cores || corVar("--acento"), borderRadius: 0, barThickness: 12}]},
+  grafico(el, {type:"bar", data:{labels: rotulos, datasets:[{label: nome, data: valores, backgroundColor: cores || corVar("--acento"), borderRadius: 0, barThickness: 14}]},
     options:{indexAxis:"y", maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label: c => fmt(c.raw)}}},
       scales:{x:{ticks:{color:corTxt(), callback: v => fmt(v)}, grid:{color: corVar("--linha")}}, y:{ticks:{color:corTxt()}, grid:{display:false}}}}});
 }
@@ -372,7 +374,7 @@ async function telaHoje(){
   const nota = id => notaHoje(H, id);
   const grade = l => `<div class="grade">${l.map(([id]) => cartaoPessoa(IX(id), nota(id))).join("")}</div>`;
   const pref = Object.entries(H.prefeitos).sort((a,b) => MUN[a[0]].localeCompare(MUN[b[0]]));
-  const blocoComp = (id, titulo, k) => { const n = cg(k).length; return n ? `<div><h3 style="margin-top:0">${titulo} (${n})</h3><div class="graf" style="height:${Math.min(16, contaPartidos(cg(k)).length) * 22 + 40}px"><canvas id="${id}" aria-label="${titulo} por partido"></canvas></div></div>` : ""; };
+  const blocoComp = (id, titulo, k) => { const n = cg(k).length; return n ? `<div><h3 style="margin-top:0">${titulo} (${n})</h3><div class="graf" style="height:${Math.min(16, contaPartidos(cg(k)).length) * 30 + 50}px"><canvas id="${id}" aria-label="${titulo} por partido"></canvas></div></div>` : ""; };
   $app.innerHTML = `<section class="card"><p class="olho">Mandatos vigentes em ${dataBR(H.data)}</p><h1>Quem governa e representa o Amazonas hoje</h1>
     <p class="lead">Pelo mandato registrado nas fontes oficiais: TSE para prefeitos, vices e vereadores; Câmara, Senado e ALEAM para os parlamentares. Renúncias e sucessões de ${H.data.slice(0,4)} (quem saiu para disputar a eleição) aparecem com nota e fonte. Licenças e afastamentos podem não aparecer ainda.</p>
     <div class="kpis"><div class="kpi"><b>${cg("deputado_estadual").length}</b><span>deputados estaduais</span></div><div class="kpi"><b>${cg("deputado_federal").length}</b><span>deputados federais</span></div>
@@ -548,6 +550,76 @@ async function telaGastos(arg){
   };
   document.querySelectorAll("#sCasa button").forEach(b => b.addEventListener("click", () => { casa = b.dataset.k; document.querySelectorAll("#sCasa button").forEach(x => x.setAttribute("aria-pressed", x === b)); desenha(); }));
   document.getElementById("sAno").addEventListener("change", e => { ano = e.target.value; desenha(); });
+  desenha();
+}
+
+// ---------------------------------------------------------------- Rankings (eficiência, gabinete, fornecedores, presença)
+const CASA_R = {cmm:"Câmara Municipal de Manaus", aleam:"Assembleia Legislativa (ALEAM)", camara:"Câmara dos Deputados", senado:"Senado Federal"};
+const LEG_TXT = (casa, leg) => casa === "cmm" ? leg : casa === "aleam" ? `${leg}ª legislatura (${2011 + (leg - 17) * 4}–${2015 + (leg - 17) * 4})` : `${leg}ª legislatura (${1999 + (leg - 51) * 4}–${2003 + (leg - 51) * 4})`;
+async function telaRankings(arg){
+  const R = await dado("rankings");
+  const st = Object.fromEntries(new URLSearchParams(arg || ""));
+  let aba = st.aba || "eficiencia", casa = st.casa || "cmm", leg = st.leg || "";
+  const abas = [["eficiencia","Eficiência legislativa"],["presenca","Presença"],["gabinete","Gabinetes da CMM"],["fornecedores","Fornecedores da cota"]];
+  $app.innerHTML = `<section class="card"><p class="olho">Rankings</p><h1>Quem produz mais, quem gasta mais</h1>
+    <p class="lead">Produção legislativa contra o custo da cota, presença em plenário, tamanho dos gabinetes e concentração de fornecedores. Comparações dentro do mesmo grupo: cada Casa e cada legislatura têm regras e tetos próprios.</p>
+    <div class="seg" id="abas" role="tablist">${abas.map(([k,t]) => `<button type="button" role="tab" data-k="${k}" aria-pressed="${aba===k}">${t}</button>`).join("")}</div></section>
+    <div id="corpoR"></div>`;
+  const pessoaCel = i => { const p = IDX.pessoas[i]; return p ? `<a href="#/p/${p[0]}">${esc(p[2] || p[1])}</a>` : "—"; };
+  const desenha = () => {
+    limparGraficos();
+    history.replaceState(null, "", "#/rankings/" + new URLSearchParams({aba, casa, ...(leg ? {leg} : {})}).toString());
+    const el = document.getElementById("corpoR");
+    if (aba === "eficiencia" || aba === "presenca") {
+      const legs = Object.keys(R.eficiencia[casa] || {}).sort((a, b) => parseInt(b) - parseInt(a)); if (!legs.includes(leg)) leg = legs[0];  // chave numérica vem em ordem crescente no JS
+      let L = (R.eficiencia[casa] || {})[leg] || [];
+      const filtrosHTML = `<div class="filtros"><label>Casa<select id="rCasa">${Object.keys(CASA_R).filter(k => R.eficiencia[k]).map(k => `<option value="${k}"${k===casa?" selected":""}>${CASA_R[k]}</option>`).join("")}</select></label>
+        <label>Legislatura<select id="rLeg">${legs.map(l => `<option value="${esc(l)}"${l===leg?" selected":""}>${esc(LEG_TXT(casa, l))}</option>`).join("")}</select></label></div>`;
+      if (aba === "eficiencia") {
+        const maxI = 100;
+        el.innerHTML = `<section class="card"><h2>Eficiência legislativa: ${esc(CASA_R[casa])}</h2>${filtrosHTML}
+          <p class="sub" style="max-width:90ch">${esc(R.metodo)}${casa === "cmm" ? " Câmara de Manaus: leis e projetos de 01/01/2025 até a coleta, pelo SAPL; cota de 2025–2026 (2026 parcial, até agosto)." : " Cota e leis somadas na legislatura inteira, pelos dados abertos da Casa."}</p>
+          <div class="grade2" style="margin-top:18px"><div><h3 style="margin-top:0">Leis × cota gasta</h3><div class="graf" style="height:380px"><canvas id="gDisp" aria-label="Dispersão entre cota e leis"></canvas></div><p class="sub">Cada ponto é um parlamentar. Acima e à esquerda: mais leis com menos cota.</p></div>
+          <div><h3 style="margin-top:0">Índice (0 a 100)</h3><div class="graf" style="height:${Math.max(300, L.length * 26 + 50)}px"><canvas id="gIdx" aria-label="Índice de eficiência"></canvas></div></div></div>
+          <h3>Tabela completa</h3><div class="rolar alto"><table class="tab"><thead><tr><th class="n">#</th><th>Parlamentar</th><th>Partido</th><th class="n">Índice</th><th class="n">Leis 1º autor</th><th class="n">Leis (autor/coautor)</th><th class="n">Projetos 1º autor</th><th class="n">Cota</th><th class="n">Custo por lei</th></tr></thead><tbody>
+          ${L.map((l,k) => `<tr><td class="n">${k+1}</td><td>${pessoaCel(l.i)}</td><td>${esc(l.partido)}</td><td class="n"><span class="barra" style="width:${Math.max(2, 70 * l.indice / maxI)}px"></span>${nf(l.indice,1)}</td><td class="n">${nf(l.leis1)}</td><td class="n">${nf(l.leis)}</td><td class="n">${nf(l.proj)}</td><td class="n">${l.ceap ? brl(l.ceap) : "—"}</td><td class="n">${l.custo_lei ? brl(l.custo_lei) : "—"}</td></tr>`).join("")}</tbody></table></div>
+          <p class="sub">Empate desempata por leis como 1º autor. Custo por lei = cota ÷ leis (autor ou coautor). Gastar menos cota não é necessariamente melhor; o índice é um retrato de produção por custo, não um juízo sobre o mandato.</p></section>`;
+        const pts = L.filter(l => l.ceap).map(l => ({x: l.ceap, y: l.leis, n: (IDX.pessoas[l.i] || [])[2] || (IDX.pessoas[l.i] || [])[1]}));
+        grafico(document.getElementById("gDisp"), {type:"scatter", data:{datasets:[{label:"Parlamentares", data: pts, backgroundColor: corVar("--acento"), pointRadius: 6, pointHoverRadius: 9, pointBorderColor: corVar("--papel"), pointBorderWidth: 1.5}]},
+          options:{maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label: c => `${c.raw.n}: ${nf(c.raw.y)} leis · ${brl(c.raw.x)}`}}},
+            scales:{x:{title:{display:true, text:"cota reembolsada (R$)"}, ticks:{callback: v => mi(v)}, grid:{color: corVar("--linha")}}, y:{title:{display:true, text:"leis (autor ou coautor)"}, beginAtZero:true, grid:{color: corVar("--linha")}}}}});
+        barrasH(document.getElementById("gIdx"), L.map(l => (IDX.pessoas[l.i] || [])[2] || (IDX.pessoas[l.i] || [])[1]), L.map(l => l.indice), {fmt: v => nf(v,1)});
+      } else {
+        L = L.filter(l => l.pres != null).sort((a,b) => b.pres - a.pres);
+        el.innerHTML = `<section class="card"><h2>Presença em plenário: ${esc(CASA_R[casa])}</h2>${filtrosHTML}
+          ${L.length ? `<div class="graf" style="height:${Math.max(300, L.length * 26 + 50)}px"><canvas id="gPres" aria-label="Presença em plenário"></canvas></div>
+          <div class="rolar alto" style="margin-top:18px"><table class="tab"><thead><tr><th class="n">#</th><th>Parlamentar</th><th>Partido</th><th class="n">Presença</th><th class="n">Dias de exercício</th></tr></thead><tbody>${L.map((l,k) => `<tr><td class="n">${k+1}</td><td>${pessoaCel(l.i)}</td><td>${esc(l.partido)}</td><td class="n">${nf(l.pres,1)}%</td><td class="n">${nf(l.dias)}</td></tr>`).join("")}</tbody></table></div>
+          <p class="sub">Câmara: presença nas sessões deliberativas; Senado: presente ÷ (presente + não compareceu), ausência justificada fora; ALEAM: presença registrada no SAPL ÷ sessões. A Câmara Municipal de Manaus não publica presença no SAPL.</p>` : `<p class="vazio">Esta Casa ou legislatura não tem presença publicada.</p>`}</section>`;
+        if (L.length) barrasH(document.getElementById("gPres"), L.map(l => (IDX.pessoas[l.i] || [])[2] || (IDX.pessoas[l.i] || [])[1]), L.map(l => l.pres), {fmt: v => nf(v,1) + "%"});
+      }
+      document.getElementById("rCasa").addEventListener("change", e => { casa = e.target.value; leg = ""; desenha(); });
+      document.getElementById("rLeg").addEventListener("change", e => { leg = e.target.value; desenha(); });
+    } else if (aba === "gabinete") {
+      const G = R.gabinete_cmm, L = G.linhas;
+      el.innerHTML = `<section class="card"><h2>Quanto custa cada gabinete da Câmara de Manaus</h2>
+        <p class="sub" style="max-width:90ch">Servidores lotados no gabinete do vereador e a soma de vencimentos e vantagens brutos em ${esc(G.competencia)} (verba de gabinete), ao lado da cota parlamentar de 2025–2026. Fonte: ${esc(G.fonte)}.</p>
+        <div class="kpis"><div class="kpi"><b>${nf(L.reduce((s,x) => s + x[2], 0))}</b><span>servidores em gabinetes</span></div><div class="kpi"><b>${mi(L.reduce((s,x) => s + x[3], 0))}</b><span>folha dos gabinetes no mês</span></div><div class="kpi"><b>${mi(L.reduce((s,x) => s + x[3], 0) * 12)}</b><span>no ano, se o mês se repetir</span></div></div>
+        <div class="graf" style="height:${Math.max(300, L.length * 26 + 50)}px"><canvas id="gGab" aria-label="Folha mensal por gabinete"></canvas></div>
+        <div class="rolar alto" style="margin-top:18px"><table class="tab"><thead><tr><th class="n">#</th><th>Gabinete</th><th class="n">Servidores</th><th class="n">Folha no mês</th><th class="n">Cota 2025–26</th></tr></thead><tbody>${L.map((x,k) => `<tr><td class="n">${k+1}</td><td>${x[0] != null ? pessoaCel(x[0]) : esc(x[1])}</td><td class="n">${nf(x[2])}</td><td class="n">${brl(x[3])}</td><td class="n">${x[4] ? brl(x[4]) : "—"}</td></tr>`).join("")}</tbody></table></div>
+        <p class="sub">A verba de gabinete tem teto por vereador; diferenças vêm do número de assessores e de quanto cada um recebe. Vantagens incluem auxílio-alimentação.</p></section>`;
+      barrasH(document.getElementById("gGab"), L.map(x => x[0] != null ? ((IDX.pessoas[x[0]] || [])[2] || x[1]) : x[1]), L.map(x => x[3]), {fmt: v => brl(v)});
+    } else {
+      const F = R.fornecedores;
+      el.innerHTML = `<section class="card"><h2>Para quem vai a cota: concentração de fornecedores</h2>
+        <p class="sub" style="max-width:90ch">Parte da cota paga ao maior fornecedor de cada parlamentar. Concentração alta é um sinal para conferir as notas, não prova de irregularidade. Só ALEAM (2023 em diante) e Senado publicam o fornecedor de cada nota.</p>
+        <div class="rolar alto"><table class="tab"><thead><tr><th class="n">#</th><th>Parlamentar</th><th>Casa</th><th class="n">Cota</th><th class="n">Fornecedores</th><th class="n">Maior fornecedor</th><th>Quem é</th><th class="n">3 maiores</th></tr></thead><tbody>
+        ${F.por_parlamentar.map((x,k) => `<tr><td class="n">${k+1}</td><td>${pessoaCel(x[0])}</td><td>${esc(CASA_R[x[1]].split(" (")[0])}</td><td class="n">${brl(x[2])}</td><td class="n">${nf(x[3])}</td><td class="n"><span class="barra" style="width:${Math.max(2, 0.7 * x[4])}px"></span>${nf(x[4],1)}%</td><td>${esc(x[5])}</td><td class="n">${nf(x[6],1)}%</td></tr>`).join("")}</tbody></table></div></section>
+        <section class="card"><h2>Fornecedores que atendem vários parlamentares</h2><div class="rolar alto"><table class="tab"><thead><tr><th>Fornecedor</th><th>CNPJ/CPF</th><th>Casa</th><th class="n">Parlamentares</th><th class="n">Recebido</th><th>Quem pagou</th></tr></thead><tbody>
+        ${F.compartilhados.map(x => `<tr><td>${esc(x[1])}</td><td>${esc(x[2].length === 14 ? x[2].replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5") : "—")}</td><td>${esc(CASA_R[x[0]].split(" (")[0])}</td><td class="n">${nf(x[3])}</td><td class="n">${brl(x[4])}</td><td>${x[5].map(pessoaCel).join(", ")}</td></tr>`).join("")}</tbody></table></div>
+        <p class="sub">Mesmo CNPJ pago pela cota de 3 ou mais parlamentares da mesma Casa. Comum em gráficas, locadoras, combustível e consultorias; vale ver valores e datas nas notas. CPF de pessoa física não é mostrado.</p></section>`;
+    }
+  };
+  document.querySelectorAll("#abas button").forEach(b => b.addEventListener("click", () => { aba = b.dataset.k; document.querySelectorAll("#abas button").forEach(x => x.setAttribute("aria-pressed", x === b)); desenha(); }));
   desenha();
 }
 
@@ -727,7 +799,7 @@ async function telaMunicipio(cod){
     <section class="card"><h2>Eleições para prefeito</h2><label>Eleição: <select id="selEl">${ciclosEl.map(c => `<option>${c}</option>`).join("")}</select></label><div id="tabEl" class="rolar"></div></section>
     <section class="card"><h2>Câmara Municipal (vereadores eleitos)</h2><label>Legislatura eleita em: <select id="selCam">${ciclos.map(c => `<option>${c}</option>`).join("")}</select></label><div id="tabCam"></div></section>
     ${m.leis ? `<section class="card"><h2>Leis municipais (${nf(m.leis.n)})</h2>
-      <div class="grade2"><div><h3 style="margin-top:0">Por assunto</h3><div class="graf" style="height:${m.leis.assuntos.length * 22 + 40}px"><canvas id="gLeisAs"></canvas></div></div>
+      <div class="grade2"><div><h3 style="margin-top:0">Por assunto</h3><div class="graf" style="height:${m.leis.assuntos.length * 30 + 50}px"><canvas id="gLeisAs"></canvas></div></div>
       <div><h3 style="margin-top:0">Por ano</h3><div class="graf"><canvas id="gLeisAno"></canvas></div></div></div>
       <h3>Mais recentes</h3><div class="rolar alto"><table class="tab"><thead><tr><th class="n">Data</th><th>Lei</th><th>Ementa</th><th>Assunto</th></tr></thead><tbody>${LZ.slice(0,60).map(x => `<tr><td class="n">${esc(x[0] ? dataBR(x[0]) : x[1])}</td><td>${x[5] ? `<a href="${esc(x[5])}" target="_blank" rel="noopener">${esc(x[2])} ${esc(x[3])}</a>` : esc(x[2] + " " + x[3])}</td><td>${esc(x[4])}</td><td><span class="selo">${esc(x[7])}</span></td></tr>`).join("")}</tbody></table></div>
       <p><a href="#/leis/mun=${IDX.municipios.findIndex(x => x[0] === cod)}">Buscar em todas as ${nf(m.leis.n)} leis de ${esc(m.nome)} →</a></p>
@@ -839,7 +911,7 @@ async function telaEstudos(){
   const extra = document.createElement("div");
   const porAs = {}; L.linhas.forEach(l => porAs[l[3]] = (porAs[l[3]]||0) + 1);
   const casas = ["camara","senado","aleam"], med = casas.map(k => { const pa = {}; G.ceap.filter(l => l[1] === k).forEach(l => pa[l[0]+"|"+l[2]] = (pa[l[0]+"|"+l[2]]||0) + l[4]); const v = Object.values(pa); return [k, v.length, v.reduce((s,x) => s+x, 0) / (v.length || 1)]; });
-  extra.innerHTML = `<section class="card"><h2>Do que tratam as leis municipais</h2><div class="graf" style="height:${Object.keys(porAs).length * 22 + 40}px"><canvas id="eLeis"></canvas></div><p class="sub">${nf(L.linhas.length)} leis, assunto atribuído pela ementa. Fonte: Diário Oficial dos Municípios (AAM) e SAPL das Câmaras. <a href="#/leis">Abrir a busca de leis →</a></p></section>
+  extra.innerHTML = `<section class="card"><h2>Do que tratam as leis municipais</h2><div class="graf" style="height:${Object.keys(porAs).length * 30 + 50}px"><canvas id="eLeis"></canvas></div><p class="sub">${nf(L.linhas.length)} leis, assunto atribuído pela ementa. Fonte: Diário Oficial dos Municípios (AAM) e SAPL das Câmaras. <a href="#/leis">Abrir a busca de leis →</a></p></section>
    <section class="card"><h2>Cota parlamentar: média por parlamentar por ano</h2><div class="rolar"><table class="tab"><thead><tr><th>Casa</th><th class="n">Parlamentar × ano com gasto</th><th class="n">Média por ano</th></tr></thead><tbody>${med.map(([k,n,v]) => `<tr><td>${esc(CASA[k])}</td><td class="n">${nf(n)}</td><td class="n">${brl(v)}</td></tr>`).join("")}</tbody></table></div><p class="sub">O teto da cota varia por Casa e por estado de origem; ano incompleto (posse, saída, ano corrente) puxa a média para baixo. <a href="#/gastos">Ver o ranking →</a></p></section>
    <section class="card"><h2>Troca de partido entre eleições</h2><div class="rolar"><table class="tab"><thead><tr><th>De</th><th>Para</th><th class="n">Pessoas</th></tr></thead><tbody>${P.trocas.slice(0,15).map(([a,b,n]) => `<tr><td><a href="#/partido/${encodeURIComponent(a)}">${esc(a)}</a></td><td><a href="#/partido/${encodeURIComponent(b)}">${esc(b)}</a></td><td class="n">${nf(n)}</td></tr>`).join("")}</tbody></table></div><p class="sub">Candidaturas consecutivas da mesma pessoa por siglas diferentes; incorporação e mudança de nome não contam. Fonte: TSE.</p></section>`;
   $app.appendChild(extra);
@@ -878,6 +950,7 @@ async function rota(){
     else if (tipo === "hoje" || tipo === "bancada") await telaHoje();
     else if (tipo === "partidos") await telaPartidos();
     else if (tipo === "partido" && arg) await telaPartido(arg);
+    else if (tipo === "rankings") await telaRankings(resto.join("/"));
     else if (tipo === "gastos") await telaGastos(resto.join("/"));
     else if (tipo === "leis") await telaLeis(resto.join("/"));
     else if (tipo === "estudos") await telaEstudos();
@@ -892,7 +965,11 @@ document.getElementById("q").addEventListener("input", e => { clearTimeout(tBusc
   IDX.pos = {}; IDX.pessoas.forEach((p, i) => IDX.pos[p[0]] = i);
   IDX.municipios.forEach(([c, n, rgint, rgi, area]) => { MUN[c] = n; MUNX[c] = {rgint, rgi, area}; });
   document.getElementById("dataHoje").textContent = new Date().toLocaleDateString("pt-BR", {weekday:"long", day:"numeric", month:"long", year:"numeric"});
-  if (window.Chart) { Chart.defaults.font.family = '"IBM Plex Sans", system-ui, sans-serif'; Chart.defaults.font.size = 12; Chart.defaults.color = corVar("--sub"); Chart.defaults.borderColor = corVar("--linha"); Chart.defaults.plugins.tooltip.backgroundColor = corVar("--txt"); Chart.defaults.plugins.tooltip.titleColor = corVar("--papel"); Chart.defaults.plugins.tooltip.bodyColor = corVar("--papel"); Chart.defaults.plugins.tooltip.cornerRadius = 0; Chart.defaults.plugins.legend.labels.boxWidth = 12; }
+  if (window.Chart) { Chart.defaults.font.family = '"IBM Plex Sans", system-ui, sans-serif'; Chart.defaults.font.size = 12; Chart.defaults.color = corVar("--sub"); Chart.defaults.borderColor = corVar("--linha"); Chart.defaults.plugins.tooltip.backgroundColor = corVar("--txt"); Chart.defaults.plugins.tooltip.titleColor = corVar("--papel"); Chart.defaults.plugins.tooltip.bodyColor = corVar("--papel"); Chart.defaults.plugins.tooltip.cornerRadius = 0; Chart.defaults.plugins.legend.labels.boxWidth = 12;
+    Chart.defaults.layout.padding = {top: 8, right: 16, bottom: 4, left: 4}; Chart.defaults.plugins.legend.align = "start"; Chart.defaults.plugins.legend.labels.padding = 18; Chart.defaults.plugins.legend.labels.boxHeight = 10;
+    Chart.defaults.datasets.bar.maxBarThickness = 26; Chart.defaults.datasets.bar.categoryPercentage = 0.7; Chart.defaults.datasets.bar.barPercentage = 0.8;
+    Chart.defaults.scale.ticks.padding = 8; Chart.defaults.scale.border = {display: false}; Chart.defaults.elements.line.borderWidth = 2; Chart.defaults.elements.point.radius = 3; Chart.defaults.elements.point.hoverRadius = 6;
+    Chart.defaults.plugins.tooltip.padding = 10; Chart.defaults.plugins.tooltip.boxPadding = 4; }
   document.getElementById("gerado").textContent = " Dados montados em " + IDX.gerado.replace("T", " ") + ".";
   window.addEventListener("hashchange", rota);
   rota();
