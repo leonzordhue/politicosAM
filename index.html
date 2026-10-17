@@ -10,7 +10,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-/* Identidade SEINFRA (azul #002D72, dourado #F5A623, Outfit) sobre a linguagem corporate-trust: superfícies claras, 1 acento, tabelas como peça central */
 :root{--azul:#002D72;--azul2:#0b4aa8;--ouro:#F5A623;--bg:#F8FAFC;--card:#fff;--inset:#F1F5F9;--txt:#0F1722;--corpo:#3B4657;--sub:#5B6777;--linha:#E1E7EF;--linha2:#C7D0DC;
   --ok:#0E7F4B;--mau:#C0362C;--aviso:#9a6700;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#6250d6;--s8:#e34948;--neutro:#c9d1dc;
   --q1:#dbe8fb;--q2:#a9c8f2;--q3:#6fa3e6;--q4:#2a78d6;--q5:#0f4c9e;color-scheme:light}
@@ -92,7 +91,7 @@ button.prim:hover{background:#00245c}
 .barra{display:inline-block;height:8px;border-radius:0 4px 4px 0;background:var(--s1);vertical-align:middle;margin-right:6px}
 .mapa-box{position:relative}
 .mapa-box svg{width:100%;height:auto;display:block}
-.mapa-box path.mun{stroke:var(--card);stroke-width:.6;cursor:pointer;transition:opacity .12s}
+.mapa-box path.mun{stroke:var(--card);stroke-width:.6;stroke-linejoin:round;cursor:pointer;transition:opacity .12s}
 .mapa-box path.mun:hover,.mapa-box path.mun:focus{stroke:var(--txt);stroke-width:1.6;outline:none}
 .mapa-box path.rod{fill:none;stroke:#7a4b00;stroke-width:1;opacity:.85;pointer-events:none}
 .legenda{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--sub);margin-top:6px}
@@ -138,20 +137,19 @@ footer{max-width:1240px;margin:0 auto;padding:18px 16px 28px;color:var(--sub);fo
     <a href="#/gastos" data-r="gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17V7"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"/><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"/></svg>Gastos</a>
     <a href="#/leis" data-r="leis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg>Leis</a>
     <a href="#/estudos" data-r="estudos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>Estudos</a>
-    <a href="#/sobre" data-r="sobre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>Fontes e método</a>
   </div></nav>
 </header>
 <main id="app"><p class="carregando">Carregando…</p></main>
 <div class="dica" id="dica" role="tooltip"></div>
 <footer>Almanaque Político do Amazonas. Dados públicos oficiais: TSE, Câmara dos Deputados, Senado Federal, ALEAM, Tesouro Nacional (SICONFI/FINBRA), IBGE, INEP, FNDE, Ministério da Saúde, CGU, SEFAZ-AM, TCE-AM, TCU, SAPL das Câmaras e Diário Oficial dos Municípios. Cada seção mostra a fonte; confira antes de citar.
-  <span id="gerado"></span> <a href="#/sobre">Fontes e método</a> · <a href="https://github.com/leonzordhue/politicosAM" target="_blank" rel="noopener">código e dados</a></footer>
+  <span id="gerado"></span></footer>
 <script>
 "use strict";
-window._VERSION_LOG = ["v1.0 2026-10-15 [Proton]: primeira versão — busca, fichas de pessoa e município, bancada, estudos",
-  "v2.0 2026-10-16 [Nexus]: almanaque — deputados estaduais e governadores, Explorar (filtros por cargo/partido/município/ano), Governo hoje, Partidos, Gastos (cota e emendas das 3 Casas), Leis municipais (busca), mapa dos 62 municípios, linha do tempo da pessoa, visual corporate-trust + SEINFRA"];
+window._VERSION_LOG = ["v1.0 2026-10-15: busca, fichas de pessoa e município, bancada, estudos",
+  "v2.0 2026-10-16: deputados estaduais e governadores, Explorar, Governo hoje, Partidos, Gastos, Leis municipais, mapa, linha do tempo"];
 window._VICIOS_CONHECIDOS = ["Chart.js: destruir o gráfico antes de recriar (graficos[] + destroy())",
-  "índice: linha = [id, nome, urna, flags, cod, foto, último ano, partido, gênero, flags do cargo atual]; não reordenar sem mudar o montar.py",
-  "cores categóricas: no mapa (todos os pares) só 3 cores + 'outros' em cinza (dataviz, check all-pairs); em barras até 8, sempre na mesma ordem"];
+  "índice: linha = [id, nome, urna, flags, cod, foto, último ano, partido, gênero, flags do cargo atual]",
+  "mapa: no máximo 3 cores + 'outros' em cinza; em barras até 8 cores, sempre na mesma ordem"];
 window._TENTATIVAS_FALHAS = [];
 
 const CARGO = {prefeito:"Prefeito(a)", "vice-prefeito":"Vice-prefeito(a)", vereador:"Vereador(a)", deputado_federal:"Deputado(a) federal", senador:"Senador(a)", suplente_senador:"Suplente de senador(a)",
@@ -171,8 +169,12 @@ const brl = v => v == null ? "—" : v.toLocaleString("pt-BR",{style:"currency",
 const nf = (v, d=0) => v == null ? "—" : Number(v).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
 const dataBR = s => s ? s.split("-").reverse().join("/") : "—";
 const idade = s => { if(!s) return ""; const n = new Date(s), h = new Date(); let a = h.getFullYear()-n.getFullYear(); if (h < new Date(h.getFullYear(), n.getMonth(), n.getDate())) a--; return a; };
+function fotoFalhou(img){ // foto que não carregou vira as iniciais (sem ícone de imagem quebrada)
+  if (img.dataset.tentou) { const d = document.createElement("div"); d.className = "sem-foto " + img.className; d.setAttribute("aria-hidden", "true"); d.textContent = img.dataset.ini || ""; if (img.style.width) { d.style.width = img.style.width; d.style.height = img.style.height; } img.replaceWith(d); return; }
+  img.dataset.tentou = 1; setTimeout(() => { img.src = img.src.split("?")[0] + "?r=1"; }, 800);
+}
 const iniciais = n => String(n||"").split(/\s+/).filter(w => w.length > 2).slice(0,2).map(w => w[0]).join("").toUpperCase();
-const foto = (id, tem, cls="", nome="") => tem ? `<img class="${cls}" src="fotos/${id}.jpg" alt="" loading="lazy" width="44" height="58">` : `<div class="sem-foto ${cls}" aria-hidden="true">${esc(iniciais(nome))}</div>`;
+const foto = (id, tem, cls="", nome="") => tem ? `<img class="${cls}" src="fotos/${id}.jpg" alt="" loading="lazy" width="44" height="58" data-ini="${esc(iniciais(nome))}" onerror="fotoFalhou(this)">` : `<div class="sem-foto ${cls}" aria-hidden="true">${esc(iniciais(nome))}</div>`;
 const mi = v => v == null ? "—" : Math.abs(v) >= 1e9 ? "R$ " + nf(v/1e9, 2) + " bi" : Math.abs(v) >= 1e6 ? "R$ " + nf(v/1e6, 1) + " mi" : brl(v);
 const IX = id => IDX.pos[id] != null ? IDX.pessoas[IDX.pos[id]] : null;
 async function dado(nome){ return CACHE[nome] ||= await getJSON(`data/${nome}.json`); }
@@ -181,7 +183,12 @@ function dica(ev, html){ const d = document.getElementById("dica"); if (!html) {
 const munNome = c => MUN[c] || (c ? c : "");
 const linkMun = c => c && MUN[c] ? `<a href="#/m/${c}">${esc(MUN[c])}</a>` : "—";
 
-async function getJSON(u){ const r = await fetch(u); if(!r.ok) throw new Error(u+" "+r.status); return r.json(); }
+async function getJSON(u, tent = 3){ // rede instável (celular no interior, proxy): tenta de novo antes de desistir
+  for (let i = 1; ; i++) {
+    try { const r = await fetch(u); if (!r.ok) throw new Error(u + " " + r.status); return await r.json(); }
+    catch (e) { if (i >= tent) throw new Error(`Não foi possível baixar ${u} (${e.message}). Verifique a conexão e recarregue a página.`); await new Promise(s => setTimeout(s, 600 * i)); }
+  }
+}
 async function pessoa(id){ const k = id.slice(0,2); if(!SHARD[k]) SHARD[k] = await getJSON(`data/p/${k}.json`); return SHARD[k][id]; }
 function limparGraficos(){ graficos.forEach(g => g.destroy()); graficos = []; }
 function grafico(el, cfg){ const g = new Chart(el, cfg); graficos.push(g); return g; }
@@ -223,7 +230,7 @@ const classe = (v, qb) => v == null ? null : qb.filter(q => v > q).length;
 async function telaInicio(){
   const H = await dado("hoje"), E = await dado("estudos");
   const n = IDX.pessoas.length, com = IDX.pessoas.filter(p => p[3] !== "c").length;
-  const card = id => { const p = IX(id); return p ? cartaoPessoa(p) : ""; };
+  const card = id => { const p = IX(id); return p ? cartaoPessoa(p, H.notas && H.notas[id] ? `<br><span class="sub" style="color:var(--aviso)">${esc(H.notas[id])}</span>` : "") : ""; };
   const cg = k => (H.cargos[k] || []);
   $app.innerHTML = `
   <section class="card"><p class="olho">Almanaque Político do Amazonas · dados montados em ${esc(IDX.gerado.replace("T"," "))}</p>
@@ -275,7 +282,7 @@ async function telaInicio(){
         dicaDe: c => `<b>${esc(MUN[c])}</b><br>${esc(document.getElementById("mapaVar").selectedOptions[0].text)}: ${val(c) == null ? "sem dado" : fmt(val(c))}`};
     }
     await desenhaMapa(el, {...opt, rodovias: rod});
-    document.getElementById("mapaFonte").textContent = {partido:"Prefeito(a) com mandato vigente hoje segundo o TSE; interinos e afastamentos podem não constar. Cores: os 3 partidos com mais prefeituras; os demais em cinza.", idhm:"Atlas do Desenvolvimento Humano (PNUD/Ipea/FJP), Censo 2010. Faixas por quintil.", pib:"IBGE, PIB dos municípios, último ano disponível. Faixas por quintil.", emendas:"CGU (pagamentos a prefeitura, fundos e órgãos municipais) e IBGE (Censo 2022). Faixas por quintil.", dens:"IBGE, Censo 2022 e área territorial 2022. Faixas por quintil.", regiao:"IBGE, regiões geográficas imediatas e intermediárias (2017)."}[v] + " Malha: IBGE." + (rod ? " Rodovias: Sistema Rodoviário Estadual (SEINFRA-AM)." : "");
+    document.getElementById("mapaFonte").textContent = {partido:"Prefeito(a) com mandato vigente hoje segundo o TSE; interinos e afastamentos podem não constar. Cores: os 3 partidos com mais prefeituras; os demais em cinza.", idhm:"Atlas do Desenvolvimento Humano (PNUD/Ipea/FJP), Censo 2010. Faixas por quintil.", pib:"IBGE, PIB dos municípios, último ano disponível. Faixas por quintil.", emendas:"CGU (pagamentos a prefeitura, fundos e órgãos municipais) e IBGE (Censo 2022). Faixas por quintil.", dens:"IBGE, Censo 2022 e área territorial 2022. Faixas por quintil.", regiao:"IBGE, regiões geográficas imediatas e intermediárias (2017)."}[v] + " Malha: IBGE." + (rod ? " Rodovias: Sistema Rodoviário Estadual do Amazonas." : "");
   };
   document.getElementById("mapaVar").addEventListener("change", pinta); document.getElementById("mapaRod").addEventListener("change", pinta); pinta();
 }
@@ -314,11 +321,12 @@ const contaPartidos = l => { const c = {}; l.forEach(([, , p]) => c[p || "sem pa
 async function telaHoje(){
   const H = await dado("hoje");
   const cg = k => (H.cargos[k] || []).filter(([id]) => IX(id));
-  const grade = l => `<div class="grade">${l.map(([id]) => cartaoPessoa(IX(id))).join("")}</div>`;
+  const nota = id => H.notas && H.notas[id] ? `<br><span class="sub" style="color:var(--aviso)">${esc(H.notas[id])}</span>` : "";
+  const grade = l => `<div class="grade">${l.map(([id]) => cartaoPessoa(IX(id), nota(id))).join("")}</div>`;
   const pref = Object.entries(H.prefeitos).sort((a,b) => MUN[a[0]].localeCompare(MUN[b[0]]));
   const blocoComp = (id, titulo, k) => { const n = cg(k).length; return n ? `<div><h3 style="margin-top:0">${titulo} (${n})</h3><div class="graf" style="height:${Math.min(16, contaPartidos(cg(k)).length) * 22 + 40}px"><canvas id="${id}" aria-label="${titulo} por partido"></canvas></div></div>` : ""; };
   $app.innerHTML = `<section class="card"><p class="olho">Mandatos vigentes em ${dataBR(H.data)}</p><h1>Quem governa e representa o Amazonas hoje</h1>
-    <p class="lead">Pelo mandato registrado nas fontes oficiais: TSE para prefeitos, vices e vereadores; Câmara, Senado e ALEAM para os parlamentares. Afastamentos, licenças e interinos recentes podem não aparecer ainda.</p>
+    <p class="lead">Pelo mandato registrado nas fontes oficiais: TSE para prefeitos, vices e vereadores; Câmara, Senado e ALEAM para os parlamentares. Quem disputou outro cargo em ${H.data.slice(0,4)} sendo governador ou prefeito teve de renunciar (CF, art. 14, § 6º) e aparece substituído pelo vice, com nota. Licenças e afastamentos podem não aparecer ainda.</p>
     <div class="kpis"><div class="kpi"><b>${cg("deputado_estadual").length}</b><span>deputados estaduais</span></div><div class="kpi"><b>${cg("deputado_federal").length}</b><span>deputados federais</span></div>
     <div class="kpi"><b>${cg("senador").length}</b><span>senadores</span></div><div class="kpi"><b>${pref.length}</b><span>prefeitos</span></div><div class="kpi"><b>${nf(cg("vereador").length)}</b><span>vereadores</span></div></div></section>
     <section class="card"><h2>Governo do Estado e Senado</h2>${grade([...cg("governador"), ...cg("vice-governador"), ...cg("senador")])}
@@ -328,7 +336,7 @@ async function telaHoje(){
     <section class="card"><h2>Composição partidária</h2><div class="grade2">${blocoComp("gPref","Prefeituras","prefeito")}${blocoComp("gVer","Cadeiras de vereador","vereador")}${blocoComp("gAle","ALEAM","deputado_estadual")}${blocoComp("gFed","Bancada federal","deputado_federal")}</div>
       <p class="sub">Partido pelo qual a pessoa foi eleita (ou o informado pela Casa). Trocas de partido durante o mandato podem não constar. Mostrados os 15 maiores; os demais somados em “outros”.</p></section>
     <section class="card"><h2>Prefeitos em exercício (${pref.length})</h2><div class="rolar alto"><table class="tab"><thead><tr><th>Município</th><th>Prefeito(a)</th><th>Partido</th><th>Região</th></tr></thead><tbody>
-      ${pref.map(([c,[id,p]]) => { const x = IX(id) || []; return `<tr><td><a href="#/m/${c}">${esc(MUN[c])}</a></td><td><a href="#/p/${id}">${esc(x[2] || x[1] || id)}</a></td><td>${esc(p)}</td><td>${esc(MUNX[c].rgint)}</td></tr>`; }).join("")}</tbody></table></div></section>`;
+      ${pref.map(([c,[id,p]]) => { const x = IX(id) || []; return `<tr><td><a href="#/m/${c}">${esc(MUN[c])}</a></td><td><a href="#/p/${id}">${esc(x[2] || x[1] || id)}</a>${nota(id)}</td><td>${esc(p)}</td><td>${esc(MUNX[c].rgint)}</td></tr>`; }).join("")}</tbody></table></div></section>`;
   [["gPref","prefeito"],["gVer","vereador"],["gAle","deputado_estadual"],["gFed","deputado_federal"]].forEach(([id,k]) => { const el = document.getElementById(id); if (!el) return;
     let l = contaPartidos(cg(k)); if (l.length > 15) l = [...l.slice(0,15), ["outros", l.slice(15).reduce((s,x) => s + x[1], 0)]];
     barrasH(el, l.map(x => x[0]), l.map(x => x[1])); });
@@ -522,8 +530,8 @@ async function telaLeis(arg){
     const pag = r.slice(0, mostrar), precisa = [...new Set(pag.map(l => L.cods[l[0]]))];
     await Promise.all(precisa.map(leisDe));
     document.getElementById("ll").innerHTML = r.length ? `<h2>Leis${r.length > mostrar ? ` (mostrando ${mostrar} de ${nf(r.length)})` : ` (${nf(r.length)})`}</h2><div class="rolar alto"><table class="tab"><thead><tr><th class="n">Ano</th><th>Município</th><th>Lei</th><th>Ementa</th><th>Assunto</th></tr></thead><tbody>${pag.map(l => { const c = L.cods[l[0]], x = (CACHE["l"+c] || [])[l[5]] || [];
-      return `<tr><td class="n">${esc(x[0] ? dataBR(x[0]) : l[1])}</td><td><a href="#/m/${c}">${esc(MUN[c])}</a></td><td>${x[5] ? `<a href="${esc(x[5])}" target="_blank" rel="noopener">${esc(L.tipos[l[2]])} ${esc(x[3]||"")}</a>` : esc(L.tipos[l[2]])}${x[6] ? `<br><a class="sub" href="https://github.com/leonzordhue/leismunicipais/blob/main/${esc(x[6])}" target="_blank" rel="noopener">texto</a>` : ""}</td><td>${esc(x[4] || l[4])}</td><td><span class="selo">${esc(L.assuntos[l[3]])}</span></td></tr>`; }).join("")}</tbody></table></div>
-      ${r.length > mostrar ? `<div class="pag"><button type="button" id="maisL">Mostrar mais 200</button></div>` : ""}<p class="sub">O link da lei leva à publicação oficial (Diário Oficial ou SAPL); “texto” abre a conversão em Markdown no repositório leismunicipais. Conversões automáticas, com OCR quando o PDF é imagem: confira a publicação oficial.</p>` : `<p class="vazio">Nenhuma lei com esses filtros.</p>`;
+      return `<tr><td class="n">${esc(x[0] ? dataBR(x[0]) : l[1])}</td><td><a href="#/m/${c}">${esc(MUN[c])}</a></td><td>${x[5] ? `<a href="${esc(x[5])}" target="_blank" rel="noopener">${esc(L.tipos[l[2]])} ${esc(x[3]||"")}</a>` : esc(L.tipos[l[2]])}</td><td>${esc(x[4] || l[4])}</td><td><span class="selo">${esc(L.assuntos[l[3]])}</span></td></tr>`; }).join("")}</tbody></table></div>
+      ${r.length > mostrar ? `<div class="pag"><button type="button" id="maisL">Mostrar mais 200</button></div>` : ""}<p class="sub">O link da lei leva à publicação oficial (Diário Oficial ou SAPL).</p>` : `<p class="vazio">Nenhuma lei com esses filtros.</p>`;
     document.getElementById("maisL")?.addEventListener("click", () => { mostrar += 200; filtra(); });
   };
   let tf; document.querySelectorAll("#fl [name]").forEach(e => e.addEventListener(e.tagName === "INPUT" ? "input" : "change", () => { mostrar = 100; clearTimeout(tf); tf = setTimeout(filtra, 250); }));
@@ -553,8 +561,7 @@ async function telaPessoa(id){
   const cand = p.cand.slice().reverse().map(c => `<tr><td class="n">${c[0]}${c[9]==="s"?"<br><span class='sub'>supl.</span>":""}</td><td>${CARGO[c[1]]||esc(c[1])}${c[8]>1?" (2º turno)":""}</td><td>${c[2]?linkMun(c[2]):"Amazonas"}</td><td>${esc(c[3])} ${esc(c[4])}</td><td class="${ELEITO.has(c[5])?"eleito":""}">${esc(c[5].toLowerCase())}</td><td class="n">${nf(c[6])}</td><td class="n">${c[7]!=null?nf(c[7],2)+"%":"—"}</td></tr>`).join("");
   const bens = p.bens.map(b => `<tr><td class="n">${b[0]}</td><td>${CARGO[b[1]]||b[1]}</td><td>${linkMun(b[2])}</td><td class="n">${brl(b[3])}${b[6] ? `<br><span class="sub">declarado: ${brl(b[5])}; ${b[6]} item(ns) com valor fora do padrão excluído(s)</span>` : ""}</td><td class="n">${b[4]}</td></tr>`).join("");
   const parl = (p.parl || []).map(pa => `<section class="card"><h2>Atuação ${pa.casa === "camara" ? "na Câmara dos Deputados" : pa.casa === "senado" ? "no Senado Federal" : "na Assembleia Legislativa do AM"}</h2>
-     ${pa.dossie ? `<p><a href="${esc(pa.dossie)}" target="_blank" rel="noopener">Dossiê completo (proposições, votações, presença, cota, emendas) →</a></p>` : `<p class="sub">Dossiê detalhado em preparação.</p>`}
-     ${pa.resumo.length ? tabelaLivre(pa.resumo) : ""}<p class="sub">Fonte: ${pa.casa === "camara" ? "API de Dados Abertos da Câmara" : pa.casa === "senado" ? "Dados Abertos do Senado" : "SAPL e Portal da Transparência da ALEAM; SEFAZ-AM"}, CGU. Repositório <a href="https://github.com/leonzordhue/${pa.repo}" target="_blank" rel="noopener">${pa.repo}</a>.</p></section>`).join("");
+     ${pa.resumo.length ? tabelaLivre(pa.resumo) : ""}<p class="sub">Fonte: ${pa.casa === "camara" ? "API de Dados Abertos da Câmara" : pa.casa === "senado" ? "Dados Abertos do Senado" : "SAPL e Portal da Transparência da ALEAM; SEFAZ-AM"}, CGU.</p></section>`).join("");
   const prop = p.prop ? `<section class="card"><h2>Proposições como autor(a) no Legislativo (${nf(p.prop.n)})</h2>
      <div class="kpis"><div class="kpi"><b>${nf(p.prop.n)}</b><span>proposições</span></div><div class="kpi"><b>${nf(p.prop.normas)}</b><span>viraram norma</span></div></div>
      <p>${p.prop.tipos.map(([t,n]) => `<span class="selo">${esc(t)}: ${nf(n)}</span>`).join(" ")}</p>
@@ -569,7 +576,7 @@ async function telaPessoa(id){
      <p class="sub">Valores nominais reembolsados pela Casa. ALEAM: CSV do portal (2023 em diante; 2015–2022 em extração dos PDFs). Gasto dentro da cota é permitido por lei. Compare com os colegas em <a href="#/gastos">Gastos</a>.</p></section>` : "";
   const emEst = p.em_est ? `<section class="card"><h2>Emendas estaduais pagas (SEFAZ-AM)</h2><div class="rolar alto"><table class="tab"><thead><tr><th class="n">Ano</th><th>Destino</th><th>Órgão</th><th class="n">Pago</th></tr></thead><tbody>${p.em_est.filter(e => e[3] > 0).map(e => `<tr><td class="n">${e[0]}</td><td>${e[1] ? linkMun(e[1]) : "estadual / sem município"}</td><td>${esc(e[2])}</td><td class="n">${brl(e[3])}</td></tr>`).join("")}</tbody></table></div>
      <p class="sub">Total pago: ${brl(p.em_est.reduce((s,e) => s + e[3], 0))}. Emendas individuais ao orçamento do Estado, 2020 em diante. Fonte: Portal da Transparência Fiscal da SEFAZ-AM.</p></section>` : "";
-  $app.innerHTML = `<section class="card ficha">${ix[5] ? `<img src="fotos/${id}.jpg" alt="Foto de ${esc(p.nome)}" width="150" height="200">` : `<div class="sem-foto" style="width:150px;height:200px;font-size:2.4rem;border-radius:8px" aria-hidden="true">${esc(iniciais(p.nome))}</div>`}
+  $app.innerHTML = `<section class="card ficha">${ix[5] ? `<img src="fotos/${id}.jpg" alt="Foto de ${esc(p.nome)}" width="150" height="200" data-ini="${esc(iniciais(p.nome))}" style="width:150px;height:200px" onerror="fotoFalhou(this)">` : `<div class="sem-foto" style="width:150px;height:200px;font-size:2.4rem;border-radius:8px" aria-hidden="true">${esc(iniciais(p.nome))}</div>`}
     <div><h1>${esc(p.nome)}</h1>
     <p>${selos(ix[3], ix[9])}${ix[7] ? ` <span class="sub">último partido: <a href="#/partido/${encodeURIComponent(ix[7])}">${esc(ix[7])}</a></span>` : ""}</p>
     <p>${p.nasc ? `Nascimento: ${dataBR(p.nasc)} (${idade(p.nasc)} anos)` : ""}${p.natural ? ` · Natural de ${esc(p.natural)}` : ""}${p.genero ? ` · ${esc(p.genero)}` : ""}</p>
@@ -640,6 +647,7 @@ async function telaMunicipio(cod){
   const emEst = {}; (m.em_est || []).forEach(e => { const k = e[1] + "|" + e[2]; emEst[k] = (emEst[k] || 0) + e[3]; });
   const emEstTop = Object.entries(emEst).sort((a,b) => b[1]-a[1]).slice(0,15), emEstTot = (m.em_est || []).reduce((s,e) => s + e[3], 0);
   const LZ = m.leis ? await leisDe(cod) : [];
+  const HJ = await dado("hoje"), ph = HJ.prefeitos[cod];
   $app.innerHTML = `<section class="card"><h1>${esc(m.nome)}</h1>
     <div class="kpis"><div class="kpi"><b>${nf(ultPop[1])}</b><span>habitantes (${ultPop[0]||"—"})</span></div>
     <div class="kpi"><b>${ultPib[3] ? brl(ultPib[3]) : "—"}</b><span>PIB por habitante (${ultPib[0]||"—"})</span></div>
@@ -648,7 +656,7 @@ async function telaMunicipio(cod){
     <div class="kpis"><div class="kpi"><b>${nf(rg.area_km2)}</b><span>km² de área</span></div><div class="kpi"><b>${ultPop[1] && rg.area_km2 ? nf(ultPop[1] / rg.area_km2, 2) : "—"}</b><span>habitantes por km²</span></div>
     <div class="kpi"><b style="font-size:1.05rem">${esc(rg.rgi || "—")}</b><span>região imediata (IBGE)</span></div><div class="kpi"><b style="font-size:1.05rem">${esc(rg.rgint || "—")}</b><span>região intermediária</span></div></div>
     <div class="grade2" style="align-items:center"><div class="mapa-box" id="miniMapa" style="max-width:520px"></div>
-    <div><h2>Quem governa hoje</h2>${prefHoje ? `<div class="grade" style="grid-template-columns:1fr">${[prefHoje.id, prefHoje.vice_id].filter(Boolean).map(i => IX(i) ? cartaoPessoa(IX(i)) : "").join("")}</div>
+    <div><h2>Quem governa hoje</h2>${prefHoje ? `<div class="grade" style="grid-template-columns:1fr">${(ph && ph[0] !== prefHoje.id ? [ph[0], prefHoje.id] : [prefHoje.id, prefHoje.vice_id]).filter(Boolean).map(i => IX(i) ? cartaoPessoa(IX(i), HJ.notas && HJ.notas[i] ? `<br><span class="sub" style="color:var(--aviso)">${esc(HJ.notas[i])}</span>` : "") : "").join("")}</div>
       <p class="sub">Mandato ${esc(prefHoje.periodo)} (${esc(prefHoje.origem)}). ${verHoje.length} vereadores eleitos em 2024 (lista abaixo).</p>` : `<p class="vazio">Sem mandato vigente registrado no TSE.</p>`}</div></div>
     <p class="sub">Código IBGE ${esc(cod)}. Fontes: TSE, IBGE (SIDRA e malha 2022), Tesouro Nacional (FINBRA e SICONFI), INEP, CGU.</p></section>
     <section class="card"><h2>Prefeitos</h2><div class="rolar"><table class="tab"><thead><tr><th>Mandato</th><th>Prefeito(a)</th><th>Partido</th><th>Vice</th><th>Origem</th><th class="n">Período</th><th class="n">Votos</th></tr></thead><tbody>${pref}</tbody></table></div>
@@ -658,7 +666,7 @@ async function telaMunicipio(cod){
     ${m.leis ? `<section class="card"><h2>Leis municipais (${nf(m.leis.n)})</h2>
       <div class="grade2"><div><h3 style="margin-top:0">Por assunto</h3><div class="graf" style="height:${m.leis.assuntos.length * 22 + 40}px"><canvas id="gLeisAs"></canvas></div></div>
       <div><h3 style="margin-top:0">Por ano</h3><div class="graf"><canvas id="gLeisAno"></canvas></div></div></div>
-      <h3>Mais recentes</h3><div class="rolar alto"><table class="tab"><thead><tr><th class="n">Data</th><th>Lei</th><th>Ementa</th><th>Assunto</th></tr></thead><tbody>${LZ.slice(0,60).map(x => `<tr><td class="n">${esc(x[0] ? dataBR(x[0]) : x[1])}</td><td>${x[5] ? `<a href="${esc(x[5])}" target="_blank" rel="noopener">${esc(x[2])} ${esc(x[3])}</a>` : esc(x[2] + " " + x[3])}<br><a class="sub" href="https://github.com/leonzordhue/leismunicipais/blob/main/${esc(x[6])}" target="_blank" rel="noopener">texto</a></td><td>${esc(x[4])}</td><td><span class="selo">${esc(x[7])}</span></td></tr>`).join("")}</tbody></table></div>
+      <h3>Mais recentes</h3><div class="rolar alto"><table class="tab"><thead><tr><th class="n">Data</th><th>Lei</th><th>Ementa</th><th>Assunto</th></tr></thead><tbody>${LZ.slice(0,60).map(x => `<tr><td class="n">${esc(x[0] ? dataBR(x[0]) : x[1])}</td><td>${x[5] ? `<a href="${esc(x[5])}" target="_blank" rel="noopener">${esc(x[2])} ${esc(x[3])}</a>` : esc(x[2] + " " + x[3])}</td><td>${esc(x[4])}</td><td><span class="selo">${esc(x[7])}</span></td></tr>`).join("")}</tbody></table></div>
       <p><a href="#/leis/mun=${IDX.municipios.findIndex(x => x[0] === cod)}">Buscar em todas as ${nf(m.leis.n)} leis de ${esc(m.nome)} →</a></p>
       <p class="sub">Origem: ${m.leis.origem.map(([o,n]) => `${o === "sapl" ? "SAPL da Câmara" : "Diário Oficial dos Municípios (AAM)"}: ${nf(n)}`).join("; ")}. Na mesma cidade a lei pode aparecer nas duas fontes. Assunto atribuído automaticamente pela ementa. Conversões automáticas: confira a publicação oficial.</p></section>` : ""}
     ${emEstTot ? `<section class="card"><h2>Emendas estaduais pagas ao município</h2><div class="kpis"><div class="kpi"><b>${mi(emEstTot)}</b><span>pagos desde 2020</span></div></div>
@@ -791,28 +799,6 @@ function tabGestoes(G, comNome){
   <p class="sub">Soma dos anos de cada gestão (o ano vai para quem governou a maior parte dele), em R$ de ${ref} corrigidos pelo IPCA. Despesa empenhada e receita orçamentária da prefeitura (FINBRA até 2012, SICONFI desde 2014; 2013 não existe na fonte e não é estimado). Interinos que o TSE não registra não recebem anos. Fonte: Tesouro Nacional; IPCA/IBGE.</p>`;
 }
 
-function telaSobre(){
-  $app.innerHTML = `<section class="card"><h1>Fontes e método</h1>
-  <p>O almanaque junta cinco levantamentos feitos só com dados públicos oficiais. Cada pessoa tem um código derivado do título de eleitor (sha1, 10 caracteres), o mesmo nos três. Assim, quem foi vereador, prefeito e depois deputado aparece numa ficha só. O título e o CPF não são publicados.</p>
-  <h2>Repositórios (código, dados e relatórios de integridade)</h2>
-  <ul><li><a href="https://github.com/leonzordhue/dossieprefeitosAM" target="_blank" rel="noopener">dossieprefeitosAM</a>: prefeitos, vices e vereadores (TSE 2000–2024), finanças (FINBRA e SICONFI), IBGE, IDEB, mínimos da educação (SIOPE) e da saúde (SIOPS), IDHM, emendas recebidas, julgamentos da Justiça Eleitoral, contas irregulares no TCE-AM e inabilitações do TCU.</li>
-  <li><a href="https://github.com/leonzordhue/deputadosfederais" target="_blank" rel="noopener">deputadosfederais</a>: deputados federais do AM desde 1999 (Câmara, CGU).</li>
-  <li><a href="https://github.com/leonzordhue/senadorAM" target="_blank" rel="noopener">senadorAM</a>: senadores do AM (Senado, CGU).</li>
-  <li>estaduaisAM: deputados estaduais (SAPL da ALEAM desde 2011; TSE desde 1998), governadores e vices desde 1994 (TSE, atas da ALEAM nas sucessões), cota parlamentar da ALEAM e emendas estaduais (SEFAZ-AM). Repositório em preparação.</li>
-  <li><a href="https://github.com/leonzordhue/leismunicipais" target="_blank" rel="noopener">leismunicipais</a>: leis dos 62 municípios em Markdown (Diário Oficial dos Municípios/AAM desde 2009; SAPL de Manaus e de 9 Câmaras do interior, em coleta).</li>
-  <li><a href="https://github.com/leonzordhue/politicosAM" target="_blank" rel="noopener">politicosAM</a>: esta plataforma e o relatório da junção (INTEGRIDADE.md).</li></ul>
-  <h2>Regras</h2><ul>
-  <li>Dado sem fonte não entra. O que não pôde ser confirmado aparece como lacuna ou alerta, nunca como estimativa.</li>
-  <li>O TSE registra quem foi eleito. Quando há eleição suplementar, a plataforma encerra o mandato anterior na data dela e mostra o fundamento do julgamento, se o TSE o publicou (2016 em diante). Interinos (em geral o presidente da Câmara), afastamentos e cassações pela Câmara não constam no TSE e aparecem como lacuna.</li><li>TCE-AM: relações oficiais de contas irregulares desde 2022 (ligadas por CPF e nome) e, para prefeitos e vices, as decisões da base de jurisprudência desde 2016. Decisões anteriores a 2016 não estão na base pública.</li><li>Câmaras Municipais: projetos, normas, votos nominais e Mesa Diretora vêm do SAPL (Interlegis) das 12 Câmaras que o alimentam (Boa Vista do Ramos, Borba, Coari, Codajás, Envira, Iranduba, Manacapuru, Manaus, Manicoré, Novo Airão, Parintins, Tefé). As outras 50 não publicam esses dados em formato aberto. Gastos de todas as Câmaras vêm do SICONFI.</li><li>Interinos e sucessões fora do TSE: a plataforma mostra quem a prefeitura declarou como prefeito ao SIOPE (2008–2023) quando não confere com o eleito. É sinal a conferir, não prova.</li>
-  <li>Patrimônio é o declarado ao TSE pelo candidato.</li>
-  <li>Gastos: cota parlamentar é reembolso permitido por lei para o exercício do mandato; ranking não indica irregularidade. ALEAM: só 2023 em diante por enquanto (2015–2022 estão em PDF e em extração).</li>
-  <li>Leis municipais: conversões automáticas (com OCR quando o PDF é imagem). O assunto é dado por palavras-chave da ementa. Confira sempre a publicação oficial pelo link.</li>
-  <li>“Governo hoje”: mandato vigente na data da montagem dos dados, pelas fontes oficiais. Licenças, afastamentos e interinos recentes podem não constar.</li>
-  <li>Mapa: malha municipal do IBGE (2022); rodovias do Sistema Rodoviário Estadual (SEINFRA-AM).</li>
-  <li>Finanças: o que a prefeitura declarou ao Tesouro. Ano em branco = não declarou.</li></ul>
-  ${IDX.ausentes.length ? `<p class="sub" style="overflow-wrap:anywhere">Em preparação: ${IDX.ausentes.map(esc).join(", ")}.</p>` : ""}</section>`;
-}
-
 // ---------------------------------------------------------------- rotas
 async function rota(){
   limparGraficos(); dica();
@@ -831,7 +817,6 @@ async function rota(){
     else if (tipo === "gastos") await telaGastos(resto.join("/"));
     else if (tipo === "leis") await telaLeis(resto.join("/"));
     else if (tipo === "estudos") await telaEstudos();
-    else if (tipo === "sobre") telaSobre();
     else await telaInicio();
   } catch (e) { console.error(e); $app.innerHTML = `<section class="card"><h1>Não foi possível carregar</h1><p class="sub">${esc(e.message)}</p></section>`; }
   window.scrollTo(0, 0);
