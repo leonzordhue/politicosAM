@@ -7,138 +7,182 @@
 <meta name="description" content="Almanaque político do Amazonas: governador, senadores, deputados, prefeitos e vereadores; candidaturas desde 1994, patrimônio, gastos de cota, emendas, leis municipais, finanças e indicadores dos 62 municípios, a partir de fontes oficiais.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23002D72'/%3E%3Ctext x='16' y='22' font-size='14' text-anchor='middle' fill='%23F5A623' font-family='sans-serif' font-weight='700'%3EAM%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{--azul:#002D72;--azul2:#0b4aa8;--ouro:#F5A623;--bg:#F8FAFC;--card:#fff;--inset:#F1F5F9;--txt:#0F1722;--corpo:#3B4657;--sub:#5B6777;--linha:#E1E7EF;--linha2:#C7D0DC;
-  --ok:#0E7F4B;--mau:#C0362C;--aviso:#9a6700;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#6250d6;--s8:#e34948;--neutro:#c9d1dc;
-  --q1:#dbe8fb;--q2:#a9c8f2;--q3:#6fa3e6;--q4:#2a78d6;--q5:#0f4c9e;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b111b;--card:#121b29;--inset:#18233a;--txt:#e9eef6;--corpo:#c9d3e2;--sub:#9aa9bf;--linha:#24324a;--linha2:#34465f;--azul2:#8db8ff;
-  --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--neutro:#3a4a63;--q1:#173257;--q2:#1d4c86;--q3:#2a6cc0;--q4:#4d93ea;--q5:#9cc4f7;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0b111b;--card:#121b29;--inset:#18233a;--txt:#e9eef6;--corpo:#c9d3e2;--sub:#9aa9bf;--linha:#24324a;--linha2:#34465f;--azul2:#8db8ff;
-  --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--neutro:#3a4a63;--q1:#173257;--q2:#1d4c86;--q3:#2a6cc0;--q4:#4d93ea;--q5:#9cc4f7;color-scheme:dark}
+:root{--papel:#F3EFE6;--papel2:#EAE4D8;--card:#F3EFE6;--bg:#F3EFE6;--inset:#EAE4D8;--txt:#151412;--corpo:#2E2B27;--sub:#6B655C;--linha:rgba(21,20,18,.14);--linha2:rgba(21,20,18,.32);
+  --acento:#B8341B;--azul:#151412;--azul2:#B8341B;--ouro:#B8341B;--ok:#1F6B45;--mau:#B8341B;--aviso:#8A5A00;
+  --s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#6250d6;--s8:#e34948;--neutro:#D8D1C3;
+  --q1:#F5DDD2;--q2:#EBB39C;--q3:#DB7C5C;--q4:#BF4728;--q5:#7A2412;--serif:"Fraunces",Georgia,serif;--sans:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--papel:#14130F;--papel2:#1D1B17;--card:#14130F;--bg:#14130F;--inset:#1F1D19;--txt:#EFE9DD;--corpo:#D6CFC2;--sub:#9C9486;--linha:rgba(239,233,221,.13);--linha2:rgba(239,233,221,.3);
+  --acento:#F0714F;--azul:#EFE9DD;--azul2:#F0714F;--ouro:#F0714F;--ok:#5CC08A;--mau:#F0714F;--aviso:#E0B252;
+  --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--neutro:#3A362F;--q1:#3B1F16;--q2:#6E2F1D;--q3:#A8432A;--q4:#E06A48;--q5:#F7B49C;color-scheme:dark}}
+:root[data-theme="dark"]{--papel:#14130F;--papel2:#1D1B17;--card:#14130F;--bg:#14130F;--inset:#1F1D19;--txt:#EFE9DD;--corpo:#D6CFC2;--sub:#9C9486;--linha:rgba(239,233,221,.13);--linha2:rgba(239,233,221,.3);
+  --acento:#F0714F;--azul:#EFE9DD;--azul2:#F0714F;--ouro:#F0714F;--ok:#5CC08A;--mau:#F0714F;--aviso:#E0B252;
+  --s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767;--neutro:#3A362F;--q1:#3B1F16;--q2:#6E2F1D;--q3:#A8432A;--q4:#E06A48;--q5:#F7B49C;color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;font-family:Outfit,system-ui,sans-serif;background:var(--bg);color:var(--corpo);line-height:1.6;font-size:15.5px;-webkit-font-smoothing:antialiased}
-a{color:var(--azul2);text-underline-offset:2px}
-a:hover{text-decoration-thickness:2px}
-header{background:var(--azul);color:#fff;position:sticky;top:0;z-index:20}
-.topo{max-width:1240px;margin:0 auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 16px}
-.marca{display:flex;gap:10px;align-items:center;font-weight:600;font-size:1.02rem;color:#fff;text-decoration:none;white-space:nowrap;line-height:1.15}
-.marca i{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--ouro);color:var(--azul);font-style:normal;font-weight:700;font-size:.9rem}
-.marca small{display:block;font-weight:400;font-size:.76rem;color:#c9d6f2}
-.busca{flex:1;min-width:220px;position:relative}
-.busca svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:#5B6777}
-#q{width:100%;padding:9px 12px 9px 36px;border-radius:8px;border:0;font:inherit;background:#fff;color:#0F1722}
-nav.secoes{background:#00245c;border-top:1px solid rgba(255,255,255,.08)}
-nav.secoes div{max-width:1240px;margin:0 auto;display:flex;gap:2px;overflow-x:auto;padding:0 10px;scrollbar-width:none}
-nav.secoes a{display:flex;gap:6px;align-items:center;color:#dbe5fb;text-decoration:none;font-size:.9rem;padding:9px 10px;border-bottom:2px solid transparent;white-space:nowrap}
-nav.secoes a svg{width:16px;height:16px;opacity:.85}
-nav.secoes a:hover{color:#fff;background:rgba(255,255,255,.06)}
-nav.secoes a.ativo{color:#fff;border-bottom-color:var(--ouro)}
-main{max-width:1240px;margin:0 auto;padding:20px 16px}
-.card{background:var(--card);border:1px solid var(--linha);border-radius:8px;padding:18px;margin-bottom:16px}
+body{margin:0;font-family:var(--sans);background:var(--papel);color:var(--corpo);line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::selection{background:var(--acento);color:#fff}
+a{color:var(--txt);text-decoration:underline;text-decoration-color:var(--linha2);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color .15s,color .15s}
+a:hover{text-decoration-color:var(--acento);color:var(--acento)}
+/* ---------- cabeçalho de jornal ---------- */
+header{background:var(--papel);position:relative;z-index:20}
+.faixa{border-bottom:1px solid var(--linha)}
+.faixa div{max-width:1280px;margin:0 auto;padding:7px 24px;display:flex;justify-content:space-between;gap:12px;font:500 .72rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--sub)}
+.topo{max-width:1280px;margin:0 auto;display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap;padding:22px 24px 16px}
+.marca{text-decoration:none;color:var(--txt);line-height:.9}
+.marca:hover{color:var(--txt)}
+.marca b{display:block;font:600 clamp(2rem,4.6vw,3.4rem)/.92 var(--serif);letter-spacing:-.025em;font-variation-settings:"opsz" 144,"SOFT" 30}
+.marca b em{font-style:italic;font-weight:400;color:var(--acento)}
+.marca small{display:block;margin-top:8px;font:500 .7rem/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--sub)}
+.busca{flex:1;min-width:240px;max-width:420px;margin-left:auto;position:relative}
+.busca svg{position:absolute;left:0;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--sub)}
+#q{width:100%;padding:10px 4px 10px 28px;border:0;border-bottom:1.5px solid var(--txt);background:transparent;font:400 1rem var(--sans);color:var(--txt);border-radius:0}
+#q::placeholder{color:var(--sub)}
+#q:focus{outline:none;border-bottom-color:var(--acento)}
+nav.secoes{position:sticky;top:0;z-index:30;background:var(--papel);border-top:3px double var(--txt);border-bottom:1px solid var(--txt)}
+nav.secoes div{max-width:1280px;margin:0 auto;display:flex;gap:0;overflow-x:auto;padding:0 14px;scrollbar-width:none}
+nav.secoes a{display:flex;align-items:center;color:var(--txt);text-decoration:none;font:500 .74rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:13px 12px;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px}
+nav.secoes a svg{display:none}
+nav.secoes a:hover{color:var(--acento)}
+nav.secoes a.ativo{border-bottom-color:var(--acento);color:var(--acento)}
+/* ---------- seções: filetes no lugar de caixas, numeradas ---------- */
+main{max-width:1280px;margin:0 auto;padding:8px 24px 40px;counter-reset:sec}
+.card{background:transparent;border:0;border-top:1px solid var(--txt);border-radius:0;padding:26px 0 30px;margin:0 0 18px}
+#app>.card:first-child{border-top:0;padding-top:30px}
 .card>h2:first-child{margin-top:0}
-h1{font-size:clamp(1.45rem,3vw,2.1rem);font-weight:600;margin:.1rem 0 .5rem;color:var(--txt);letter-spacing:-.01em;line-height:1.2}
-h2{font-size:1.12rem;font-weight:600;margin:0 0 .7rem;color:var(--txt)}
-h3{font-size:.98rem;font-weight:600;margin:1.1rem 0 .4rem;color:var(--txt)}
-.olho{font-size:.8rem;font-weight:500;color:var(--azul2);letter-spacing:.03em;margin:0 0 .2rem}
-.sub{color:var(--sub);font-size:.86rem}
-.lead{font-size:1.02rem;max-width:72ch}
-.grade{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
-.grade2{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr))}
-.pessoa{display:flex;gap:10px;align-items:center;text-decoration:none;color:inherit;padding:8px;border-radius:8px;border:1px solid var(--linha);background:var(--card);transition:border-color .12s,background .12s}
-.pessoa:hover,.pessoa:focus-visible{border-color:var(--linha2);background:var(--inset)}
-.pessoa img,.sem-foto{width:44px;height:58px;object-fit:cover;border-radius:6px;background:var(--inset);flex:none}
-.sem-foto{display:grid;place-items:center;color:var(--sub);font-weight:600;font-size:.9rem}
-.pessoa b{display:block;font-weight:600;font-size:.94rem;line-height:1.25;color:var(--txt)}
-.selo{display:inline-block;font-size:.75rem;font-weight:500;padding:1px 8px;border-radius:99px;background:var(--inset);color:var(--txt);border:1px solid var(--linha);margin:3px 4px 0 0;white-space:nowrap}
-.selo.ouro{background:var(--azul);color:#fff;border-color:var(--azul)}
-.selo.hoje{background:var(--ok);color:#fff;border-color:var(--ok)}
-.selo.mau{background:var(--mau);color:#fff;border-color:var(--mau)}
+#app>.card>h2:first-child::before,#app>section>div>div>h2:first-child::before{counter-increment:sec;content:counter(sec,decimal-leading-zero);display:block;font:500 .72rem/1 var(--mono);letter-spacing:.14em;color:var(--acento);margin-bottom:10px}
+h1{font:600 clamp(2.1rem,5.2vw,4.2rem)/.98 var(--serif);letter-spacing:-.03em;margin:.1rem 0 .7rem;color:var(--txt);font-variation-settings:"opsz" 144}
+h2{font:600 clamp(1.35rem,2.3vw,1.85rem)/1.1 var(--serif);letter-spacing:-.015em;margin:0 0 .9rem;color:var(--txt);font-variation-settings:"opsz" 72}
+h3{font:600 .74rem/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;margin:1.5rem 0 .7rem;color:var(--sub)}
+.olho{font:500 .72rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--acento);margin:0 0 .9rem}
+.sub{color:var(--sub);font-size:.84rem;line-height:1.5}
+p.sub{max-width:78ch}
+.lead{font:400 clamp(1.05rem,1.5vw,1.25rem)/1.55 var(--sans);color:var(--corpo);max-width:60ch}
+/* ---------- números ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;margin:1.2rem 0;border-top:1px solid var(--linha);border-bottom:1px solid var(--linha)}
+.kpi{padding:16px 18px 16px 0;border-right:1px solid var(--linha);margin-right:18px}
+.kpi:last-child{border-right:0}
+.kpi b{display:block;font:500 clamp(1.6rem,2.8vw,2.3rem)/1 var(--serif);color:var(--txt);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;font-variation-settings:"opsz" 144}
+.kpi span{display:block;margin-top:8px;color:var(--sub);font:500 .68rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+/* ---------- pessoas ---------- */
+.grade{display:grid;gap:0 22px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.grade2{display:grid;gap:28px 40px;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr))}
+.pessoa{display:flex;gap:14px;align-items:flex-start;text-decoration:none;color:inherit;padding:14px 0;border-bottom:1px solid var(--linha)}
+.pessoa:hover{color:inherit}
+.pessoa img,.sem-foto{width:52px;height:68px;object-fit:cover;background:var(--papel2);flex:none;filter:grayscale(1) contrast(1.05);transition:filter .25s}
+.pessoa:hover img,.pessoa:focus-visible img{filter:none}
+.sem-foto{display:grid;place-items:center;color:var(--sub);font:500 1rem var(--serif);filter:none}
+.pessoa b{display:block;font:600 1.08rem/1.15 var(--serif);color:var(--txt);letter-spacing:-.005em;transition:color .15s}
+.pessoa:hover b{color:var(--acento)}
+.pessoa .sub{font-size:.8rem}
+.selo{display:inline-block;font:500 .64rem/1.5 var(--mono);letter-spacing:.07em;text-transform:uppercase;padding:1px 6px;border:1px solid var(--linha2);color:var(--sub);margin:5px 5px 0 0;white-space:nowrap;border-radius:0;background:transparent}
+.selo.ouro{border-color:var(--txt);color:var(--txt)}
+.selo.hoje{background:var(--acento);border-color:var(--acento);color:#fff}
+.selo.mau{background:var(--mau);border-color:var(--mau);color:#fff}
+/* ---------- tabelas ---------- */
 .tab{width:100%;border-collapse:collapse;font-size:.88rem}
-.tab th,.tab td{padding:7px 9px;border-bottom:1px solid var(--linha);text-align:left;vertical-align:top}
-.tab th{font-weight:600;color:var(--sub);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;background:var(--inset);position:sticky;top:0}
-.tab tbody tr:hover{background:var(--inset)}
+.tab th,.tab td{padding:9px 12px 9px 0;border-bottom:1px solid var(--linha);text-align:left;vertical-align:top}
+.tab th{font:500 .66rem/1.3 var(--mono);color:var(--sub);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--txt);background:var(--papel);position:sticky;top:0}
+.tab tbody tr{transition:background .12s}
+.tab tbody tr:hover{background:var(--papel2)}
 .tab td.n,.tab th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tab td a{font-weight:500}
 .rolar{overflow-x:auto;max-width:100%}
-.rolar.alto{max-height:560px;overflow-y:auto;border:1px solid var(--linha);border-radius:8px}
+.rolar.alto{max-height:600px;overflow-y:auto;border-top:1px solid var(--linha);border-bottom:1px solid var(--linha)}
 .rolar.alto .tab th{z-index:1}
-.ficha{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
-.ficha img{width:150px;height:200px;object-fit:cover;border-radius:8px;background:var(--inset);border:1px solid var(--linha)}
-.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:.8rem 0}
-.kpi{border:1px solid var(--linha);border-radius:8px;padding:12px;background:var(--card)}
-.kpi b{display:block;font-size:1.4rem;font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums;line-height:1.2}
-.kpi span{color:var(--sub);font-size:.8rem}
+/* ---------- ficha ---------- */
+.ficha{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
+.ficha img{width:180px;height:240px;object-fit:cover;background:var(--papel2);filter:grayscale(.15)}
+.ficha h1{max-width:18ch}
 .eleito{color:var(--ok);font-weight:600}
-.alerta{border-left:3px solid var(--ouro);padding:8px 12px;background:rgba(245,166,35,.08);border-radius:6px;font-size:.88rem;margin:.6rem 0}
-.graf{position:relative;height:280px}
-.graf.baixo{height:220px}
-select,button,input[type=search].campo,input[type=text].campo{font:inherit;font-size:.9rem;padding:7px 10px;border-radius:8px;border:1px solid var(--linha2);background:var(--card);color:var(--txt)}
-button{cursor:pointer}
-button.prim{background:var(--azul);color:#fff;border-color:var(--azul)}
-button.prim:hover{background:#00245c}
-.filtros{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:.4rem 0 1rem}
-.filtros label{display:flex;flex-direction:column;gap:3px;font-size:.75rem;font-weight:500;color:var(--sub);letter-spacing:.02em}
-.filtros label.cresce{flex:1;min-width:200px}
+.alerta{border-left:3px solid var(--acento);padding:10px 14px;background:var(--papel2);font-size:.9rem;margin:.8rem 0;max-width:80ch}
+.graf{position:relative;height:300px}
+.graf.baixo{height:230px}
+select,button,input[type=search].campo,input[type=text].campo{font:400 .92rem var(--sans);padding:8px 10px;border:1px solid var(--linha2);border-radius:0;background:var(--papel);color:var(--txt)}
+select:focus,input.campo:focus{outline:none;border-color:var(--acento)}
+button{cursor:pointer;font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
+button:hover{border-color:var(--txt)}
+button.prim{background:var(--txt);color:var(--papel);border-color:var(--txt)}
+.filtros{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:.8rem 0 1.2rem}
+.filtros label{display:flex;flex-direction:column;gap:5px;font:500 .64rem/1.2 var(--mono);color:var(--sub);letter-spacing:.1em;text-transform:uppercase}
+.filtros label.cresce{flex:1;min-width:220px}
 .filtros label.cresce input{width:100%}
-.seg{display:inline-flex;border:1px solid var(--linha2);border-radius:8px;overflow:hidden}
-.seg button{border:0;border-radius:0;padding:6px 11px;background:var(--card)}
-.seg button+button{border-left:1px solid var(--linha2)}
-.seg button[aria-pressed="true"]{background:var(--azul);color:#fff}
-.lista-mun{columns:4 180px;font-size:.93rem}
+.seg{display:inline-flex;border:1px solid var(--txt)}
+.seg button{border:0;padding:8px 13px;background:transparent;color:var(--txt)}
+.seg button+button{border-left:1px solid var(--txt)}
+.seg button[aria-pressed="true"]{background:var(--txt);color:var(--papel)}
+.lista-mun{columns:4 180px;font-size:.95rem}
 .lista-mun a{display:block;padding:2px 0}
-.barra{display:inline-block;height:8px;border-radius:0 4px 4px 0;background:var(--s1);vertical-align:middle;margin-right:6px}
+.barra{display:inline-block;height:7px;background:var(--acento);vertical-align:middle;margin-right:8px}
+/* ---------- mapa ---------- */
 .mapa-box{position:relative}
 .mapa-box svg{width:100%;height:auto;display:block}
-.mapa-box path.mun{stroke:var(--card);stroke-width:.6;stroke-linejoin:round;cursor:pointer;transition:opacity .12s}
-.mapa-box path.mun:hover,.mapa-box path.mun:focus{stroke:var(--txt);stroke-width:1.6;outline:none}
-.mapa-box path.rod{fill:none;stroke:#7a4b00;stroke-width:1;opacity:.85;pointer-events:none}
-.legenda{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--sub);margin-top:6px}
-.legenda span{display:inline-flex;gap:5px;align-items:center}
-.legenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
-.dica{position:fixed;pointer-events:none;background:var(--card);color:var(--txt);border:1px solid var(--linha2);border-radius:8px;padding:8px 10px;font-size:.82rem;max-width:280px;z-index:50;display:none;box-shadow:0 1px 2px rgba(15,23,34,.06)}
-.linha-tempo{position:relative;margin:.4rem 0 1rem}
-.lt-ano{display:flex;justify-content:space-between;font-size:.72rem;color:var(--sub);font-variant-numeric:tabular-nums}
-.lt-faixa{position:relative;height:22px;margin:3px 0;background:var(--inset);border-radius:4px}
-.lt-faixa b{position:absolute;top:0;height:22px;border-radius:4px;font-size:.72rem;font-weight:500;color:#fff;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lt-rot{font-size:.78rem;color:var(--sub);margin-top:6px}
-.pag{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.88rem}
-.atalhos{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.atalho{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--linha);border-radius:8px;text-decoration:none;color:inherit;background:var(--card)}
-.atalho:hover{border-color:var(--linha2);background:var(--inset)}
-.atalho svg{width:22px;height:22px;color:var(--azul2);flex:none;margin-top:2px}
-.atalho b{display:block;color:var(--txt);font-weight:600}
-.atalho span{font-size:.85rem;color:var(--sub)}
+.mapa-box path.mun{stroke:var(--papel);stroke-width:.7;stroke-linejoin:round;cursor:pointer;transition:opacity .15s}
+.mapa-box svg:hover path.mun{opacity:.55}
+.mapa-box svg path.mun:hover,.mapa-box path.mun:focus{opacity:1;stroke:var(--txt);stroke-width:1.4;outline:none}
+.mapa-box path.rod{fill:none;stroke:var(--txt);stroke-width:1.1;opacity:.75;pointer-events:none}
+.legenda{display:flex;gap:16px;flex-wrap:wrap;font:500 .7rem/1.4 var(--mono);letter-spacing:.04em;color:var(--sub);margin-top:10px}
+.legenda span{display:inline-flex;gap:6px;align-items:center}
+.legenda i{width:12px;height:12px;display:inline-block}
+.dica{position:fixed;pointer-events:none;background:var(--txt);color:var(--papel);padding:9px 12px;font-size:.82rem;max-width:280px;z-index:50;display:none;line-height:1.45}
+.dica b{font-family:var(--serif);font-size:1rem}
+/* ---------- linha do tempo ---------- */
+.linha-tempo{position:relative;margin:.6rem 0 1.4rem}
+.lt-ano{display:flex;justify-content:space-between;font:500 .66rem var(--mono);color:var(--sub);font-variant-numeric:tabular-nums;border-top:1px solid var(--txt);padding-top:4px}
+.lt-faixa{position:relative;height:24px;margin:3px 0 8px;background:var(--papel2)}
+.lt-faixa b{position:absolute;top:0;height:24px;font:500 .68rem/24px var(--mono);color:#fff;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lt-rot{font:500 .66rem/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-top:6px}
+.pag{display:flex;gap:8px;align-items:center;margin-top:12px}
+/* ---------- índice (atalhos) ---------- */
+.atalhos{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0 28px;counter-reset:at}
+.atalho{display:block;padding:18px 0;border-top:1px solid var(--linha);text-decoration:none;color:inherit}
+.atalho::before{counter-increment:at;content:counter(at,decimal-leading-zero);display:block;font:500 .7rem var(--mono);color:var(--acento);letter-spacing:.12em;margin-bottom:6px}
+.atalho svg{display:none}
+.atalho b{display:block;font:600 1.3rem/1.15 var(--serif);color:var(--txt);margin-bottom:4px;transition:color .15s}
+.atalho:hover b{color:var(--acento)}
+.atalho span{font-size:.88rem;color:var(--sub)}
+/* ---------- capa ---------- */
+.capa{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:48px;align-items:start}
+.capa h1{font-size:clamp(2.6rem,7vw,6rem);line-height:.92;max-width:11ch}
+.capa h1 em{font-style:italic;font-weight:400;color:var(--acento)}
+.indice-num{border-top:1px solid var(--txt);counter-reset:num}
+.indice-num div{display:grid;grid-template-columns:2.2rem 1fr auto;gap:10px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--linha)}
+.indice-num div::before{counter-increment:num;content:counter(num,decimal-leading-zero);font:500 .68rem var(--mono);color:var(--acento);letter-spacing:.1em}
+.indice-num span{font-size:.9rem;color:var(--corpo)}
+.indice-num b{font:500 1.7rem/1 var(--serif);color:var(--txt);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .vazio{color:var(--sub);padding:12px 0}
-.sumario{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--linha)}
-.sumario button{font-size:.8rem;padding:3px 10px;border-radius:99px;background:var(--inset);border:1px solid var(--linha)}
-.sumario button:hover{border-color:var(--linha2);color:var(--azul2)}
-footer{max-width:1240px;margin:0 auto;padding:18px 16px 28px;color:var(--sub);font-size:.82rem;border-top:1px solid var(--linha)}
-.carregando{color:var(--sub);padding:24px}
-:focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
-@media (max-width:640px){header{position:static}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi b{font-size:1.15rem}.ficha img{width:110px;height:146px}.marca small{display:none}main{padding:14px 12px}.card{padding:14px}.graf{height:240px}}
+.sumario{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border-top:1px solid var(--linha)}
+.sumario button{border:0;border-bottom:1px solid transparent;background:transparent;padding:9px 14px 9px 0;font-size:.66rem;color:var(--sub)}
+.sumario button:hover{color:var(--acento)}
+footer{max-width:1280px;margin:0 auto;padding:22px 24px 36px;color:var(--sub);font:400 .8rem/1.6 var(--sans);border-top:3px double var(--txt)}
+.carregando{color:var(--sub);padding:40px 0;font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase}
+:focus-visible{outline:2px solid var(--acento);outline-offset:3px}
+@media (max-width:860px){.capa{grid-template-columns:1fr;gap:24px}}
+@media (max-width:640px){main{padding:4px 16px 32px}.topo{padding:16px}.faixa div{padding:6px 16px}.faixa span+span{display:none}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{margin-right:12px;padding-right:12px}.kpi:nth-child(2n){border-right:0}.ficha img{width:120px;height:160px}.graf{height:250px}.busca{max-width:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <header>
+  <div class="faixa"><div><span id="dataHoje"></span><span>Dados públicos oficiais · 62 municípios · desde 1994</span></div></div>
   <div class="topo">
-    <a class="marca" href="#/"><i>AM</i><span>Almanaque Político<small>do Amazonas · dados públicos oficiais</small></span></a>
+    <a class="marca" href="#/"><b>Almanaque <em>Político</em><br>do Amazonas</b><small>Quem governa, quem representa, o que fizeram</small></a>
     <div class="busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
-    <input id="q" type="search" placeholder="Buscar pessoa, nome de urna ou município…" aria-label="Buscar pessoa ou município" autocomplete="off"></div>
+    <input id="q" type="search" placeholder="Buscar político ou município" aria-label="Buscar pessoa ou município" autocomplete="off"></div>
   </div>
-  <nav class="secoes" aria-label="Seções"><div id="menu">
-    <a href="#/" data-r=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Início</a>
-    <a href="#/explorar" data-r="explorar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>Explorar</a>
-    <a href="#/hoje" data-r="hoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 18v-7"/><path d="M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></svg>Governo hoje</a>
-    <a href="#/municipios" data-r="municipios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>Municípios</a>
-    <a href="#/partidos" data-r="partidos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>Partidos</a>
-    <a href="#/gastos" data-r="gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17V7"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"/><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"/></svg>Gastos</a>
-    <a href="#/leis" data-r="leis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg>Leis</a>
-    <a href="#/estudos" data-r="estudos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>Estudos</a>
-  </div></nav>
 </header>
+<nav class="secoes" aria-label="Seções"><div id="menu">
+  <a href="#/" data-r="">Capa</a>
+  <a href="#/explorar" data-r="explorar">Explorar</a>
+  <a href="#/hoje" data-r="hoje">Governo hoje</a>
+  <a href="#/municipios" data-r="municipios">Municípios</a>
+  <a href="#/partidos" data-r="partidos">Partidos</a>
+  <a href="#/gastos" data-r="gastos">Gastos</a>
+  <a href="#/leis" data-r="leis">Leis</a>
+  <a href="#/estudos" data-r="estudos">Estudos</a>
+</div></nav>
 <main id="app"><p class="carregando">Carregando…</p></main>
 <div class="dica" id="dica" role="tooltip"></div>
 <footer>Almanaque Político do Amazonas. Dados públicos oficiais: TSE, Câmara dos Deputados, Senado Federal, ALEAM, Tesouro Nacional (SICONFI/FINBRA), IBGE, INEP, FNDE, Ministério da Saúde, CGU, SEFAZ-AM, TCE-AM, TCU, SAPL das Câmaras e Diário Oficial dos Municípios. Cada seção mostra a fonte; confira antes de citar.
@@ -169,6 +213,10 @@ const brl = v => v == null ? "—" : v.toLocaleString("pt-BR",{style:"currency",
 const nf = (v, d=0) => v == null ? "—" : Number(v).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
 const dataBR = s => s ? s.split("-").reverse().join("/") : "—";
 const idade = s => { if(!s) return ""; const n = new Date(s), h = new Date(); let a = h.getFullYear()-n.getFullYear(); if (h < new Date(h.getFullYear(), n.getMonth(), n.getDate())) a--; return a; };
+// dentro do cartão (que já é um link) só a frase curta, sem <a>; o texto completo e a fonte vão em notasHoje() abaixo da grade
+function notaHoje(H, id){ return H.notas && H.notas[id] ? `<br><span class="sub" style="color:var(--acento)">${esc(H.notas[id].split(":")[0])} ¹</span>` : ""; }
+function notasHoje(H, ids){ const l = [...new Set(ids)].filter(id => H.notas && H.notas[id]); if (!l.length) return "";
+  return `<div class="alerta" style="margin-top:14px"><b style="font-family:var(--mono);font-size:.68rem;letter-spacing:.1em">¹ MUDANÇAS DE ${esc(H.data.slice(0,4))}</b>${l.map(id => { const p = IX(id) || []; return `<br><b>${esc(p[2] || p[1] || id)}</b>: ${esc(H.notas[id])}${H.fontes && H.fontes[id] ? ` (<a href="${esc(H.fontes[id])}" target="_blank" rel="noopener">fonte</a>)` : ""}`; }).join("")}</div>`; }
 function fotoFalhou(img){ // foto que não carregou vira as iniciais (sem ícone de imagem quebrada)
   if (img.dataset.tentou) { const d = document.createElement("div"); d.className = "sem-foto " + img.className; d.setAttribute("aria-hidden", "true"); d.textContent = img.dataset.ini || ""; if (img.style.width) { d.style.width = img.style.width; d.style.height = img.style.height; } img.replaceWith(d); return; }
   img.dataset.tentou = 1; setTimeout(() => { img.src = img.src.split("?")[0] + "?r=1"; }, 800);
@@ -194,7 +242,7 @@ function limparGraficos(){ graficos.forEach(g => g.destroy()); graficos = []; }
 function grafico(el, cfg){ const g = new Chart(el, cfg); graficos.push(g); return g; }
 const corTxt = () => getComputedStyle(document.documentElement).getPropertyValue("--sub").trim();
 
-const selos = (flags, atual="") => [...(flags||"")].filter(f => FLAG[f]).map(f => atual.includes(f) ? `<span class="selo hoje" title="no cargo hoje">${FLAG[f]} · hoje</span>` : `<span class="selo${"GHSDA".includes(f)?" ouro":""}">${FLAG[f]}</span>`).join("");
+const selos = (flags, atual="") => "GHSDAPVEc".split("").filter(f => FLAG[f] && ((flags||"").includes(f) || (atual||"").includes(f)) && !(f === "c" && atual)).map(f => atual.includes(f) ? `<span class="selo hoje" title="no cargo hoje">${FLAG[f]} · hoje</span>` : `<span class="selo${"GHSDA".includes(f)?" ouro":""}">${FLAG[f]}</span>`).join("");
 function cartaoPessoa(p, extra=""){ // p = linha do índice
   const [id, nome, urna, flags, cod, tem, , partido, , atual] = p;
   return `<a class="pessoa" href="#/p/${id}">${foto(id, tem, "", urna || nome)}<span><b>${esc(urna || nome)}</b><span class="sub">${esc(urna && urna !== nome ? nome : "")}${partido ? (urna && urna !== nome ? " · " : "") + esc(partido) : ""}${cod && MUN[cod] ? " · "+esc(MUN[cod]) : ""}</span>${extra}<br>${selos(flags, atual)}</span></a>`;
@@ -230,29 +278,29 @@ const classe = (v, qb) => v == null ? null : qb.filter(q => v > q).length;
 async function telaInicio(){
   const H = await dado("hoje"), E = await dado("estudos");
   const n = IDX.pessoas.length, com = IDX.pessoas.filter(p => p[3] !== "c").length;
-  const card = id => { const p = IX(id); return p ? cartaoPessoa(p, H.notas && H.notas[id] ? `<br><span class="sub" style="color:var(--aviso)">${esc(H.notas[id])}</span>` : "") : ""; };
+  const card = id => { const p = IX(id); return p ? cartaoPessoa(p, notaHoje(H, id)) : ""; };
   const cg = k => (H.cargos[k] || []);
   $app.innerHTML = `
-  <section class="card"><p class="olho">Almanaque Político do Amazonas · dados montados em ${esc(IDX.gerado.replace("T"," "))}</p>
-   <h1>Quem governa, quem representa e o que fizeram no Amazonas</h1>
-   <p class="lead">Governador, senadores, deputados federais e estaduais, prefeitos e vereadores dos 62 municípios: todas as candidaturas desde 1994, mandatos, patrimônio declarado, gastos de cota, emendas, leis municipais, finanças das prefeituras e indicadores. Só fonte oficial, com a origem indicada em cada número.</p>
-   <div class="kpis">
-    <div class="kpi"><b>${nf(n)}</b><span>pessoas que disputaram eleição no AM</span></div>
-    <div class="kpi"><b>${nf(com)}</b><span>exerceram algum mandato</span></div>
-    <div class="kpi"><b>${nf(Object.values(H.cargos).reduce((s,l) => s + l.length, 0))}</b><span>mandatos em exercício hoje</span></div>
-    <div class="kpi"><b>62</b><span>municípios com finanças, IDEB, IDHM e Câmara</span></div>
-    <div class="kpi"><b id="kLeis">…</b><span>leis municipais com texto</span></div>
-    <div class="kpi"><b id="kCeap">…</b><span>em cota parlamentar analisada</span></div>
+  <section class="card capa"><div><p class="olho">Edição de ${esc(dataBR(IDX.gerado.slice(0,10)))} · dados oficiais</p>
+   <h1>Quem manda no <em>Amazonas</em>, e o que fez com isso.</h1>
+   <p class="lead">Governador, senadores, deputados, prefeitos e vereadores dos 62 municípios. Cada candidatura desde 1994, cada mandato, o patrimônio declarado, a cota gasta, as emendas, as leis e as contas das prefeituras.</p></div>
+   <div class="indice-num">
+    <div><span>pessoas que já disputaram eleição no AM</span><b>${nf(n)}</b></div>
+    <div><span>exerceram algum mandato</span><b>${nf(com)}</b></div>
+    <div><span>mandatos em exercício hoje</span><b>${nf(Object.values(H.cargos).reduce((s,l) => s + l.length, 0))}</b></div>
+    <div><span>leis municipais com texto</span><b id="kLeis">…</b></div>
+    <div><span>em cota parlamentar analisada</span><b id="kCeap">…</b></div>
    </div></section>
-  <section class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-end"><div><h2 style="margin:0">Mapa do Amazonas</h2><p class="sub" style="margin:.2rem 0 0">Clique num município para abrir a ficha.</p></div>
+  <section class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-end"><div><h2 style="margin:0">O mapa do poder</h2><p class="sub" style="margin:.2rem 0 0">Clique num município para abrir a ficha.</p></div>
     <div class="filtros" style="margin:0"><label>Pintar por<select id="mapaVar"><option value="partido">Partido do prefeito em exercício</option><option value="idhm">IDHM 2010</option><option value="pib">PIB por habitante</option><option value="emendas">Emendas federais por habitante (2019+)</option><option value="dens">Habitantes por km²</option><option value="regiao">Região intermediária (IBGE)</option></select></label>
     <label style="flex-direction:row;align-items:center;gap:6px;font-size:.85rem"><input type="checkbox" id="mapaRod"> rodovias estaduais</label></div></div>
     <div class="mapa-box" id="mapa"></div><p class="sub" id="mapaFonte"></p></section>
-  <section class="card"><h2>Quem governa o Amazonas hoje</h2>
+  <section class="card"><h2>Quem governa o Amazonas hoje</h2><p class="sub">Governo do Estado e bancada no Senado.</p>
    <div class="grade">${cg("governador").map(([id]) => card(id)).join("")}${cg("vice-governador").map(([id]) => card(id)).join("")}${cg("senador").map(([id]) => card(id)).join("")}</div>
+   ${notasHoje(H, [...cg("governador"), ...cg("vice-governador"), ...cg("senador")].map(x => x[0]).concat(Object.keys(H.notas || {}).filter(id => H.notas[id].startsWith("deixou") && /governador/.test(H.notas[id]))))}
    <h3>Deputados federais em exercício (${cg("deputado_federal").length})</h3><div class="grade">${cg("deputado_federal").map(([id]) => card(id)).join("")}</div>
    <p><a href="#/hoje">Ver deputados estaduais, prefeitos e a composição partidária →</a></p></section>
-  <section class="card"><h2>Caminhos</h2><div class="atalhos">
+  <section class="card"><h2>Neste almanaque</h2><div class="atalhos">
    <a class="atalho" href="#/explorar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><div><b>Explorar candidaturas</b><span>Filtre por cargo, partido, município, ano e resultado.</span></div></a>
    <a class="atalho" href="#/partidos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg><div><b>Partidos</b><span>Quantos elegeram, onde governam e quem trocou de legenda.</span></div></a>
    <a class="atalho" href="#/gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V7"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"/><path d="M4 3h16v18H4z"/></svg><div><b>Gastos dos parlamentares</b><span>Cota parlamentar e emendas de deputados e senadores.</span></div></a>
@@ -312,7 +360,7 @@ async function telaMunicipios(){
 }
 
 function barrasH(el, rotulos, valores, {fmt = v => nf(v), nome = "", cores} = {}){
-  grafico(el, {type:"bar", data:{labels: rotulos, datasets:[{label: nome, data: valores, backgroundColor: cores || cor(0), borderRadius: 4, barThickness: 14}]},
+  grafico(el, {type:"bar", data:{labels: rotulos, datasets:[{label: nome, data: valores, backgroundColor: cores || corVar("--acento"), borderRadius: 0, barThickness: 12}]},
     options:{indexAxis:"y", maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label: c => fmt(c.raw)}}},
       scales:{x:{ticks:{color:corTxt(), callback: v => fmt(v)}, grid:{color: corVar("--linha")}}, y:{ticks:{color:corTxt()}, grid:{display:false}}}}});
 }
@@ -321,22 +369,22 @@ const contaPartidos = l => { const c = {}; l.forEach(([, , p]) => c[p || "sem pa
 async function telaHoje(){
   const H = await dado("hoje");
   const cg = k => (H.cargos[k] || []).filter(([id]) => IX(id));
-  const nota = id => H.notas && H.notas[id] ? `<br><span class="sub" style="color:var(--aviso)">${esc(H.notas[id])}</span>` : "";
+  const nota = id => notaHoje(H, id);
   const grade = l => `<div class="grade">${l.map(([id]) => cartaoPessoa(IX(id), nota(id))).join("")}</div>`;
   const pref = Object.entries(H.prefeitos).sort((a,b) => MUN[a[0]].localeCompare(MUN[b[0]]));
   const blocoComp = (id, titulo, k) => { const n = cg(k).length; return n ? `<div><h3 style="margin-top:0">${titulo} (${n})</h3><div class="graf" style="height:${Math.min(16, contaPartidos(cg(k)).length) * 22 + 40}px"><canvas id="${id}" aria-label="${titulo} por partido"></canvas></div></div>` : ""; };
   $app.innerHTML = `<section class="card"><p class="olho">Mandatos vigentes em ${dataBR(H.data)}</p><h1>Quem governa e representa o Amazonas hoje</h1>
-    <p class="lead">Pelo mandato registrado nas fontes oficiais: TSE para prefeitos, vices e vereadores; Câmara, Senado e ALEAM para os parlamentares. Quem disputou outro cargo em ${H.data.slice(0,4)} sendo governador ou prefeito teve de renunciar (CF, art. 14, § 6º) e aparece substituído pelo vice, com nota. Licenças e afastamentos podem não aparecer ainda.</p>
+    <p class="lead">Pelo mandato registrado nas fontes oficiais: TSE para prefeitos, vices e vereadores; Câmara, Senado e ALEAM para os parlamentares. Renúncias e sucessões de ${H.data.slice(0,4)} (quem saiu para disputar a eleição) aparecem com nota e fonte. Licenças e afastamentos podem não aparecer ainda.</p>
     <div class="kpis"><div class="kpi"><b>${cg("deputado_estadual").length}</b><span>deputados estaduais</span></div><div class="kpi"><b>${cg("deputado_federal").length}</b><span>deputados federais</span></div>
     <div class="kpi"><b>${cg("senador").length}</b><span>senadores</span></div><div class="kpi"><b>${pref.length}</b><span>prefeitos</span></div><div class="kpi"><b>${nf(cg("vereador").length)}</b><span>vereadores</span></div></div></section>
     <section class="card"><h2>Governo do Estado e Senado</h2>${grade([...cg("governador"), ...cg("vice-governador"), ...cg("senador")])}
-      ${cg("vice-governador").length ? "" : `<p class="sub">Vice-governador: ainda sem mandato vigente no repositório estaduaisAM.</p>`}</section>
+      ${cg("vice-governador").length ? "" : `<p class="sub">Vice-governador: cargo vago.</p>`}${notasHoje(H, Object.keys(H.notas || {}).filter(id => /governador|Senado/.test(H.notas[id])))}</section>
     <section class="card"><h2>Câmara dos Deputados: bancada do AM</h2>${grade(cg("deputado_federal"))}</section>
     <section class="card"><h2>Assembleia Legislativa (ALEAM)</h2>${grade(cg("deputado_estadual"))}<p class="sub">Inclui suplentes em exercício. Fonte: SAPL da ALEAM.</p></section>
     <section class="card"><h2>Composição partidária</h2><div class="grade2">${blocoComp("gPref","Prefeituras","prefeito")}${blocoComp("gVer","Cadeiras de vereador","vereador")}${blocoComp("gAle","ALEAM","deputado_estadual")}${blocoComp("gFed","Bancada federal","deputado_federal")}</div>
       <p class="sub">Partido pelo qual a pessoa foi eleita (ou o informado pela Casa). Trocas de partido durante o mandato podem não constar. Mostrados os 15 maiores; os demais somados em “outros”.</p></section>
     <section class="card"><h2>Prefeitos em exercício (${pref.length})</h2><div class="rolar alto"><table class="tab"><thead><tr><th>Município</th><th>Prefeito(a)</th><th>Partido</th><th>Região</th></tr></thead><tbody>
-      ${pref.map(([c,[id,p]]) => { const x = IX(id) || []; return `<tr><td><a href="#/m/${c}">${esc(MUN[c])}</a></td><td><a href="#/p/${id}">${esc(x[2] || x[1] || id)}</a>${nota(id)}</td><td>${esc(p)}</td><td>${esc(MUNX[c].rgint)}</td></tr>`; }).join("")}</tbody></table></div></section>`;
+      ${pref.map(([c,[id,p]]) => { const x = IX(id) || []; return `<tr><td><a href="#/m/${c}">${esc(MUN[c])}</a></td><td><a href="#/p/${id}">${esc(x[2] || x[1] || id)}</a>${H.notas && H.notas[id] ? `<br><span class="sub" style="color:var(--acento)">${esc(H.notas[id])}${H.fontes && H.fontes[id] ? ` (<a href="${esc(H.fontes[id])}" target="_blank" rel="noopener">fonte</a>)` : ""}</span>` : ""}</td><td>${esc(p)}</td><td>${esc(MUNX[c].rgint)}</td></tr>`; }).join("")}</tbody></table></div></section>`;
   [["gPref","prefeito"],["gVer","vereador"],["gAle","deputado_estadual"],["gFed","deputado_federal"]].forEach(([id,k]) => { const el = document.getElementById(id); if (!el) return;
     let l = contaPartidos(cg(k)); if (l.length > 15) l = [...l.slice(0,15), ["outros", l.slice(15).reduce((s,x) => s + x[1], 0)]];
     barrasH(el, l.map(x => x[0]), l.map(x => x[1])); });
@@ -384,10 +432,10 @@ async function telaExplorar(arg){
     const porP = {}; r.forEach(l => { const k = C.partidos[l[4]] || "—"; (porP[k] ||= [0,0])[0]++; if (l[5]) porP[k][1]++; });
     let lp = Object.entries(porP).sort((a,b) => b[1][0]-a[1][0]); if (lp.length > 12) lp = [...lp.slice(0,12), ["outros", lp.slice(12).reduce((s,x) => [s[0]+x[1][0], s[1]+x[1][1]], [0,0])]];
     const eixo = {ticks:{color:corTxt()}, grid:{color:corVar("--linha")}};
-    grafico(document.getElementById("gPart"), {type:"bar", data:{labels: lp.map(x => x[0]), datasets:[{label:"Candidaturas", data: lp.map(x => x[1][0]), backgroundColor: cor(0), borderRadius:4},{label:"Eleitos", data: lp.map(x => x[1][1]), backgroundColor: cor(1), borderRadius:4}]},
+    grafico(document.getElementById("gPart"), {type:"bar", data:{labels: lp.map(x => x[0]), datasets:[{label:"Candidaturas", data: lp.map(x => x[1][0]), backgroundColor: cor(0), borderRadius:0},{label:"Eleitos", data: lp.map(x => x[1][1]), backgroundColor: cor(1), borderRadius:0}]},
       options:{indexAxis:"y", maintainAspectRatio:false, plugins:{legend:{labels:{color:corTxt()}}}, scales:{x:eixo, y:{...eixo, grid:{display:false}}}}});
     const porA = {}; r.forEach(l => { (porA[l[1]] ||= [0,0])[0]++; if (l[5]) porA[l[1]][1]++; }); const la = Object.keys(porA).sort();
-    grafico(document.getElementById("gAno"), {type:"bar", data:{labels: la, datasets:[{label:"Candidaturas", data: la.map(a => porA[a][0]), backgroundColor: cor(0), borderRadius:4},{label:"Eleitos", data: la.map(a => porA[a][1]), backgroundColor: cor(1), borderRadius:4}]},
+    grafico(document.getElementById("gAno"), {type:"bar", data:{labels: la, datasets:[{label:"Candidaturas", data: la.map(a => porA[a][0]), backgroundColor: cor(0), borderRadius:0},{label:"Eleitos", data: la.map(a => porA[a][1]), backgroundColor: cor(1), borderRadius:0}]},
       options:{maintainAspectRatio:false, plugins:{legend:{labels:{color:corTxt()}}}, scales:{x:{...eixo, grid:{display:false}}, y:eixo}}});
     const linhas = r.slice(0, mostrar).map(l => { const p = IDX.pessoas[l[0]], c = C.cargos[l[2]];
       return `<tr><td><a href="#/p/${p[0]}" style="display:flex;gap:8px;align-items:center;text-decoration:none">${foto(p[0], p[5], "", p[2]||p[1]).replace('width="44" height="58"','width="30" height="40" style="width:30px;height:40px"').replace('class="sem-foto "','class="sem-foto" style="width:30px;height:40px;font-size:.7rem"')}<span><b style="font-weight:600">${esc(p[2] || p[1])}</b><br><span class="sub">${esc(p[2] && p[2] !== p[1] ? p[1] : "")}</span></span></a></td>
@@ -441,7 +489,7 @@ async function telaPartido(sigla){
       <div><h2>Foram para</h2>${foi.length ? `<table class="tab"><tbody>${foi.map(([,b,n]) => `<tr><td><a href="#/partido/${encodeURIComponent(b)}">${esc(b)}</a></td><td class="n">${nf(n)}</td></tr>`).join("")}</tbody></table>` : `<p class="vazio">—</p>`}</div></div>
       <p class="sub">Pessoas que disputaram a eleição seguinte por outra sigla. Fonte: TSE.</p></section>`;
   const eixo = {ticks:{color:corTxt()}, grid:{color:corVar("--linha")}};
-  [["gPr","prefeito"],["gVe","vereador"]].forEach(([id,c]) => grafico(document.getElementById(id), {type:"bar", data:{labels: anosM, datasets:[{label: CARGO[c], data: anosM.map(a => (d.eleitos[c]||{})[a] || 0), backgroundColor: cor(0), borderRadius:4}]},
+  [["gPr","prefeito"],["gVe","vereador"]].forEach(([id,c]) => grafico(document.getElementById(id), {type:"bar", data:{labels: anosM, datasets:[{label: CARGO[c], data: anosM.map(a => (d.eleitos[c]||{})[a] || 0), backgroundColor: corVar("--acento"), borderRadius:0}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{...eixo, grid:{display:false}}, y:{...eixo, beginAtZero:true}}}}));
 }
 
@@ -470,7 +518,7 @@ async function telaGastos(arg){
       <div class="kpi"><b>${rk.length ? mi(tot / rk.reduce((s,[,x]) => s + x.anos.size, 0)) : "—"}</b><span>média por parlamentar por ano</span></div><div class="kpi"><b>${mi(totE)}</b><span>em emendas pagas</span></div></div>`;
     limparGraficos();
     const as = [...new Set(G.ceap.filter(l => !casa || l[1] === casa).map(l => l[2]))].sort(), casas = casa ? [casa] : ["camara","senado","aleam"];
-    grafico(document.getElementById("gAno"), {type:"bar", data:{labels: as, datasets: casas.map(k => ({label: CASA[k], data: as.map(a => G.ceap.filter(l => l[1] === k && l[2] === a).reduce((s,l) => s + l[4], 0)), backgroundColor: cor(["camara","senado","aleam"].indexOf(k)), borderRadius:4}))},
+    grafico(document.getElementById("gAno"), {type:"bar", data:{labels: as, datasets: casas.map(k => ({label: CASA[k], data: as.map(a => G.ceap.filter(l => l[1] === k && l[2] === a).reduce((s,l) => s + l[4], 0)), backgroundColor: cor(["camara","senado","aleam"].indexOf(k)), borderRadius:0}))},
       options:{maintainAspectRatio:false, plugins:{legend:{display: casas.length > 1, labels:{color:corTxt()}}, tooltip:{callbacks:{label: x => `${x.dataset.label}: ${brl(x.raw)}`}}}, scales:{x:{ticks:{color:corTxt()}, grid:{display:false}}, y:{ticks:{color:corTxt(), callback: v => mi(v)}, grid:{color:corVar("--linha")}}}}});
     document.getElementById("nAno").textContent = "Valores nominais. Câmara e Senado: dados abertos das Casas. ALEAM: CSV do portal de transparência (2023 em diante); 2015–2022 só em PDF, em extração. O ano em curso é parcial.";
     document.getElementById("rk").innerHTML = rk.length ? `<div class="rolar alto"><table class="tab"><thead><tr><th class="n">#</th><th>Parlamentar</th><th>Casa</th><th class="n">Total</th><th class="n">Anos</th><th class="n">Média/ano</th><th>Maior categoria</th></tr></thead><tbody>${rk.map(([i, x], k) => { const p = IDX.pessoas[i], top = Object.entries(x.cat).sort((a,b) => b[1]-a[1])[0];
@@ -521,7 +569,7 @@ async function telaLeis(arg){
     const ca = {}; r.forEach(l => ca[l[3]] = (ca[l[3]]||0) + 1); const la = Object.entries(ca).sort((a,b) => b[1]-a[1]);
     barrasH(document.getElementById("gAs"), la.map(([k]) => L.assuntos[k]), la.map(([,v]) => v));
     const cy = {}; r.forEach(l => /^\d{4}$/.test(l[1]) && (cy[l[1]] = (cy[l[1]]||0) + 1)); const ly = Object.keys(cy).sort();
-    grafico(document.getElementById("gAn"), {type:"bar", data:{labels: ly, datasets:[{label:"Leis", data: ly.map(a => cy[a]), backgroundColor: cor(0), borderRadius:4}]},
+    grafico(document.getElementById("gAn"), {type:"bar", data:{labels: ly, datasets:[{label:"Leis", data: ly.map(a => cy[a]), backgroundColor: corVar("--acento"), borderRadius:0}]},
       options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:corTxt()}, grid:{display:false}}, y:{ticks:{color:corTxt()}, grid:{color:corVar("--linha")}}}}});
     const cm = {}; r.forEach(l => cm[l[0]] = (cm[l[0]]||0) + 1); const lm = Object.entries(cm).map(([i,n]) => [L.cods[i], n, pop(L.cods[i])]).sort((a,b) => b[1]-a[1]);
     document.getElementById("cRk").style.display = f.mun !== undefined ? "none" : "";
@@ -606,12 +654,12 @@ async function telaPessoa(id){
     ${bens ? `<section class="card"><h2>Patrimônio declarado ao TSE</h2><div class="graf"><canvas id="gBens" aria-label="Patrimônio declarado por eleição"></canvas></div>
       <div class="rolar"><table class="tab"><thead><tr><th class="n">Eleição</th><th>Cargo disputado</th><th>Município</th><th class="n">Total declarado</th><th class="n">Bens</th></tr></thead><tbody>${bens}</tbody></table></div>
       <p class="sub">Valor informado pelo próprio candidato, em geral o de compra. Variação não prova enriquecimento. Fonte: TSE, bem_candidato.</p></section>` : ""}`;
-  if (p.ceap) grafico(document.getElementById("gCeap"), {type:"bar", data:{labels: ceapAnos, datasets:[{label:"Cota (R$)", data: ceapAnos.map(a => p.ceap.filter(c => c[1] === a).reduce((s,c) => s + c[3], 0)), backgroundColor: cor(0), borderRadius:4}]},
+  if (p.ceap) grafico(document.getElementById("gCeap"), {type:"bar", data:{labels: ceapAnos, datasets:[{label:"Cota (R$)", data: ceapAnos.map(a => p.ceap.filter(c => c[1] === a).reduce((s,c) => s + c[3], 0)), backgroundColor: corVar("--acento"), borderRadius:0}]},
     options:{maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label: c => brl(c.raw)}}}, scales:{y:{ticks:{color:corTxt(), callback: v => mi(v)}, grid:{color:corVar("--linha")}}, x:{ticks:{color:corTxt()}, grid:{display:false}}}}});
   sumario();
   if (bens) {
     const anos = [...new Set(p.bens.map(b => b[0]))].sort();
-    grafico(document.getElementById("gBens"), {type:"bar", data:{labels:anos, datasets:[{label:"Total declarado (R$)", data:anos.map(a => Math.max(...p.bens.filter(b => b[0]===a).map(b => b[3]||0))), backgroundColor:cor(0), borderRadius:4}]},
+    grafico(document.getElementById("gBens"), {type:"bar", data:{labels:anos, datasets:[{label:"Total declarado (R$)", data:anos.map(a => Math.max(...p.bens.filter(b => b[0]===a).map(b => b[3]||0))), backgroundColor:corVar("--acento"), borderRadius:0}]},
       options:{maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label: c => brl(c.raw)}}}, scales:{y:{ticks:{color:corTxt(), callback:v => mi(v)}, grid:{color:corVar("--linha")}}, x:{ticks:{color:corTxt()}, grid:{display:false}}}}});
   }
 }
@@ -656,8 +704,8 @@ async function telaMunicipio(cod){
     <div class="kpis"><div class="kpi"><b>${nf(rg.area_km2)}</b><span>km² de área</span></div><div class="kpi"><b>${ultPop[1] && rg.area_km2 ? nf(ultPop[1] / rg.area_km2, 2) : "—"}</b><span>habitantes por km²</span></div>
     <div class="kpi"><b style="font-size:1.05rem">${esc(rg.rgi || "—")}</b><span>região imediata (IBGE)</span></div><div class="kpi"><b style="font-size:1.05rem">${esc(rg.rgint || "—")}</b><span>região intermediária</span></div></div>
     <div class="grade2" style="align-items:center"><div class="mapa-box" id="miniMapa" style="max-width:520px"></div>
-    <div><h2>Quem governa hoje</h2>${prefHoje ? `<div class="grade" style="grid-template-columns:1fr">${(ph && ph[0] !== prefHoje.id ? [ph[0], prefHoje.id] : [prefHoje.id, prefHoje.vice_id]).filter(Boolean).map(i => IX(i) ? cartaoPessoa(IX(i), HJ.notas && HJ.notas[i] ? `<br><span class="sub" style="color:var(--aviso)">${esc(HJ.notas[i])}</span>` : "") : "").join("")}</div>
-      <p class="sub">Mandato ${esc(prefHoje.periodo)} (${esc(prefHoje.origem)}). ${verHoje.length} vereadores eleitos em 2024 (lista abaixo).</p>` : `<p class="vazio">Sem mandato vigente registrado no TSE.</p>`}</div></div>
+    <div><h2>Quem governa hoje</h2>${prefHoje ? `<div class="grade" style="grid-template-columns:1fr">${(ph && ph[0] !== prefHoje.id ? [ph[0], prefHoje.id] : [prefHoje.id, prefHoje.vice_id]).filter(Boolean).map(i => IX(i) ? cartaoPessoa(IX(i), notaHoje(HJ, i)) : "").join("")}</div>
+      ${notasHoje(HJ, [ph && ph[0], prefHoje.id].filter(Boolean))}<p class="sub">Mandato ${esc(prefHoje.periodo)} (${esc(prefHoje.origem)}). ${verHoje.length} vereadores eleitos em 2024 (lista abaixo).</p>` : `<p class="vazio">Sem mandato vigente registrado no TSE.</p>`}</div></div>
     <p class="sub">Código IBGE ${esc(cod)}. Fontes: TSE, IBGE (SIDRA e malha 2022), Tesouro Nacional (FINBRA e SICONFI), INEP, CGU.</p></section>
     <section class="card"><h2>Prefeitos</h2><div class="rolar"><table class="tab"><thead><tr><th>Mandato</th><th>Prefeito(a)</th><th>Partido</th><th>Vice</th><th>Origem</th><th class="n">Período</th><th class="n">Votos</th></tr></thead><tbody>${pref}</tbody></table></div>
     <p class="sub">“Lacuna” = o TSE não mostra quem governou no período (cassação, eleição anulada, interinidade). Datas de posse em eleição suplementar são aproximadas (data da eleição).</p></section>
@@ -743,7 +791,7 @@ async function telaMunicipio(cod){
   if (m.leis) {
     barrasH(document.getElementById("gLeisAs"), m.leis.assuntos.map(x => x[0]), m.leis.assuntos.map(x => x[1]));
     const la = m.leis.anos.filter(([a]) => /^\d{4}$/.test(a));
-    grafico(document.getElementById("gLeisAno"), {type:"bar", data:{labels: la.map(x => x[0]), datasets:[{label:"Leis", data: la.map(x => x[1]), backgroundColor: cor(0), borderRadius:4}]},
+    grafico(document.getElementById("gLeisAno"), {type:"bar", data:{labels: la.map(x => x[0]), datasets:[{label:"Leis", data: la.map(x => x[1]), backgroundColor: corVar("--acento"), borderRadius:0}]},
       options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:corTxt()}, grid:{display:false}}, y:{ticks:{color:corTxt()}, grid:{color:corVar("--linha")}}}}});
   }
   if (m.emendas.length) {
@@ -827,6 +875,8 @@ document.getElementById("q").addEventListener("input", e => { clearTimeout(tBusc
   IDX = await getJSON("data/indice.json");
   IDX.pos = {}; IDX.pessoas.forEach((p, i) => IDX.pos[p[0]] = i);
   IDX.municipios.forEach(([c, n, rgint, rgi, area]) => { MUN[c] = n; MUNX[c] = {rgint, rgi, area}; });
+  document.getElementById("dataHoje").textContent = new Date().toLocaleDateString("pt-BR", {weekday:"long", day:"numeric", month:"long", year:"numeric"});
+  if (window.Chart) { Chart.defaults.font.family = '"IBM Plex Sans", system-ui, sans-serif'; Chart.defaults.font.size = 12; Chart.defaults.color = corVar("--sub"); Chart.defaults.borderColor = corVar("--linha"); Chart.defaults.plugins.tooltip.backgroundColor = corVar("--txt"); Chart.defaults.plugins.tooltip.titleColor = corVar("--papel"); Chart.defaults.plugins.tooltip.bodyColor = corVar("--papel"); Chart.defaults.plugins.tooltip.cornerRadius = 0; Chart.defaults.plugins.legend.labels.boxWidth = 12; }
   document.getElementById("gerado").textContent = " Dados montados em " + IDX.gerado.replace("T", " ") + ".";
   window.addEventListener("hashchange", rota);
   rota();
