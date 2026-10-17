@@ -560,7 +560,7 @@ async function telaRankings(arg){
   const R = await dado("rankings");
   const st = Object.fromEntries(new URLSearchParams(arg || ""));
   let aba = st.aba || "eficiencia", casa = st.casa || "cmm", leg = st.leg || "";
-  const abas = [["eficiencia","Eficiência legislativa"],["presenca","Presença"],["gabinete","Gabinetes da CMM"],["fornecedores","Fornecedores da cota"]];
+  const abas = [["eficiencia","Eficiência legislativa"],["prefeitos","Prefeitos"],["camaras","Câmaras Municipais"],["presenca","Presença"],["gabinete","Gabinetes da CMM"],["fornecedores","Fornecedores da cota"]];
   $app.innerHTML = `<section class="card"><p class="olho">Rankings</p><h1>Quem produz mais, quem gasta mais</h1>
     <p class="lead">Produção legislativa contra o custo da cota, presença em plenário, tamanho dos gabinetes e concentração de fornecedores. Comparações dentro do mesmo grupo: cada Casa e cada legislatura têm regras e tetos próprios.</p>
     <div class="seg" id="abas" role="tablist">${abas.map(([k,t]) => `<button type="button" role="tab" data-k="${k}" aria-pressed="${aba===k}">${t}</button>`).join("")}</div></section>
@@ -599,6 +599,31 @@ async function telaRankings(arg){
       }
       document.getElementById("rCasa").addEventListener("change", e => { casa = e.target.value; leg = ""; desenha(); });
       document.getElementById("rLeg").addEventListener("change", e => { leg = e.target.value; desenha(); });
+    } else if (aba === "prefeitos" && R.prefeitos) {
+      const ciclos = Object.keys(R.prefeitos.por_ciclo).sort().reverse(); if (!ciclos.includes(leg)) leg = ciclos[0];
+      const L = R.prefeitos.por_ciclo[leg] || [], fmt = (v, s="") => v == null ? "—" : nf(v, 1).replace(",0", "") + s;
+      el.innerHTML = `<section class="card"><h2>Boletim de gestão dos prefeitos</h2>
+        <div class="filtros"><label>Mandato<select id="rCiclo">${ciclos.map(c => `<option value="${c}"${c===leg?" selected":""}>${+c+1}–${+c+4} (eleitos em ${c})</option>`).join("")}</select></label></div>
+        <p class="sub" style="max-width:90ch">${esc(R.prefeitos.metodo)} Mandatos interrompidos e interinos entram pelo período em que o prefeito do TSE governou.</p>
+        <div class="graf" style="height:${Math.max(300, L.filter(l => l.indice != null).length * 26 + 50)}px;margin-top:18px"><canvas id="gPref" aria-label="Índice de gestão"></canvas></div>
+        <div class="rolar alto" style="margin-top:18px"><table class="tab"><thead><tr><th class="n">#</th><th>Prefeito(a)</th><th>Município</th><th class="n">Índice</th><th class="n">IDEB (variação)</th><th class="n">Educação no mínimo</th><th class="n">Saúde no mínimo</th><th class="n">Saúde + educação na despesa</th><th class="n">Pessoal / RCL</th><th class="n">Contas irregulares (TCE)</th></tr></thead><tbody>
+        ${L.map((l,k) => `<tr><td class="n">${l.indice != null ? k+1 : "—"}</td><td>${l.i != null ? pessoaCel(l.i) : esc(l.nome)}</td><td>${linkMun(l.cod)}</td><td class="n">${l.indice != null ? `<span class="barra" style="width:${Math.max(2, 0.7 * l.indice)}px"></span>${nf(l.indice,1)}` : "—"}</td><td class="n">${l.ideb != null ? (l.ideb > 0 ? "+" : "") + nf(l.ideb,1) : "—"}</td><td class="n">${fmt(l.mde, "% dos anos")}</td><td class="n">${fmt(l.saude, "% dos anos")}</td><td class="n">${fmt(l.se, "%")}</td><td class="n">${fmt(l.pessoal, "%")}</td><td class="n">${l.irreg ? `<span class="selo mau">${l.irreg}</span>` : "0"}</td></tr>`).join("")}</tbody></table></div>
+        <p class="sub">Fontes: INEP (IDEB), FNDE/SIOPE, Ministério da Saúde/SIOPS, Tesouro Nacional (SICONFI/FINBRA), TCE-AM. Ano sem dado declarado não conta. É um retrato por indicadores públicos, não um juízo sobre a gestão.</p></section>`;
+      const C = L.filter(l => l.indice != null);
+      barrasH(document.getElementById("gPref"), C.map(l => `${(IDX.pessoas[l.i] || [])[2] || l.nome} · ${MUN[l.cod]}`), C.map(l => l.indice), {fmt: v => nf(v,1)});
+      document.getElementById("rCiclo").addEventListener("change", e => { leg = e.target.value; desenha(); });
+    } else if (aba === "camaras" && R.camaras) {
+      const L = R.camaras.linhas, tot = L.reduce((s,x) => s + x[2], 0);
+      el.innerHTML = `<section class="card"><h2>Quanto custa cada Câmara Municipal</h2>
+        <p class="sub" style="max-width:90ch">Despesa empenhada da Câmara no último ano declarado ao Tesouro, dividida pela população e pelo número de vereadores eleitos. Fonte: ${esc(R.camaras.fonte)}.</p>
+        <div class="kpis"><div class="kpi"><b>${mi(tot)}</b><span>gasto somado das ${L.length} Câmaras (último ano)</span></div><div class="kpi"><b>${brl(tot / L.reduce((s,x) => s + (x[7]||0), 0))}</b><span>por habitante do AM</span></div><div class="kpi"><b>${mi(tot / L.reduce((s,x) => s + x[3], 0))}</b><span>por vereador, em média</span></div></div>
+        <div class="grade2" style="margin-top:10px"><div><h3 style="margin-top:0">Por habitante (15 maiores)</h3><div class="graf" style="height:500px"><canvas id="gCamH"></canvas></div></div><div><h3 style="margin-top:0">Por vereador (15 maiores)</h3><div class="graf" style="height:500px"><canvas id="gCamV"></canvas></div></div></div>
+        <div class="rolar alto" style="margin-top:18px"><table class="tab"><thead><tr><th>Município</th><th class="n">Ano</th><th class="n">Gasto da Câmara</th><th class="n">Vereadores</th><th class="n">Por vereador</th><th class="n">Por habitante</th><th class="n">Pessoal / RCL</th></tr></thead><tbody>
+        ${L.map(x => `<tr><td>${linkMun(x[0])}</td><td class="n">${x[1]}</td><td class="n">${brl(x[2])}</td><td class="n">${x[3] || "—"}</td><td class="n">${x[4] ? brl(x[4]) : "—"}</td><td class="n">${x[5] ? brl(x[5]) : "—"}</td><td class="n">${x[6] != null ? nf(x[6],2) + "%" + (x[6] > 6 ? ' <span class="selo mau">acima de 6%</span>' : "") : "—"}</td></tr>`).join("")}</tbody></table></div>
+        <p class="sub">O repasse à Câmara tem teto constitucional pela população (CF art. 29-A) e a folha do Legislativo não pode passar de 6% da receita corrente líquida (LRF art. 20, III, a). Gasto por vereador inclui toda a estrutura da Câmara, não só os subsídios.</p></section>`;
+      const h = L.filter(x => x[5]).sort((a,b) => b[5]-a[5]).slice(0,15), v = L.filter(x => x[4]).sort((a,b) => b[4]-a[4]).slice(0,15);
+      barrasH(document.getElementById("gCamH"), h.map(x => MUN[x[0]]), h.map(x => x[5]), {fmt: v => brl(v)});
+      barrasH(document.getElementById("gCamV"), v.map(x => MUN[x[0]]), v.map(x => x[4]), {fmt: v => mi(v)});
     } else if (aba === "gabinete") {
       const G = R.gabinete_cmm, L = G.linhas;
       el.innerHTML = `<section class="card"><h2>Quanto custa cada gabinete da Câmara de Manaus</h2>
